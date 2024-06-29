@@ -12,6 +12,8 @@
     using Google.Apis.YouTube.v3;
     using Google.Apis.Services;
     using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    using Google.Apis.YouTube.v3.Data;
 
     public class YoutubeManager
     {
@@ -63,14 +65,66 @@
                               new FileDataStore(credPath, true)).Result;
             }
 
-            var service = new YouTubeService(new BaseClientService.Initializer()
+            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credentials,
                 ApplicationName = "MyAutomations",
             });
+           
+            var dumpPlaylist = GetMyPlaylists(youtubeService).First(y => y.Snippet.Title == "dump-wl");  //.Select(x => x.Snippet)
 
-            var test = service.Playlists.List;
+            var playlistVideos = GetVideosOfPlayist(youtubeService, dumpPlaylist.Id);
         }
+
+        private List<Playlist> GetMyPlaylists(YouTubeService service)
+        {
+            var getPlaylistsRequest = service.Playlists.List("snippet");
+
+            getPlaylistsRequest.Mine = true;
+            getPlaylistsRequest.MaxResults = 50;
+
+            var playlistsFirstPage = getPlaylistsRequest.Execute();
+            var allPlaylists = playlistsFirstPage.Items.ToList();
+
+
+            var currentPlaylistPage = playlistsFirstPage;
+
+            while (currentPlaylistPage.NextPageToken != null)
+            {
+                getPlaylistsRequest.PageToken = currentPlaylistPage.NextPageToken;
+                var nextPlaylistPage = getPlaylistsRequest.Execute();
+
+                allPlaylists.AddRange(nextPlaylistPage.Items);
+                currentPlaylistPage = nextPlaylistPage;
+            }
+
+            return allPlaylists;
+        }
+
+        private List<PlaylistItem> GetVideosOfPlayist(YouTubeService service, string playlistId)
+        {
+            var getVideosRequest = service.PlaylistItems.List("snippet");
+            getVideosRequest.PlaylistId = playlistId;
+            getVideosRequest.MaxResults = 50;
+
+            var videosFirstPage = getVideosRequest.Execute();
+
+            var allVideos = videosFirstPage.Items.ToList();
+
+            var currentVideoPage = videosFirstPage;
+
+            while (currentVideoPage.NextPageToken != null)
+            {
+                getVideosRequest.PageToken = currentVideoPage.NextPageToken;
+                var nextVideoPage = getVideosRequest.Execute();
+
+                allVideos.AddRange(nextVideoPage.Items);
+                currentVideoPage = nextVideoPage;
+            }
+
+            return allVideos;
+        }
+
 
         private static Token GetElibilityToken(HttpClient client)
     {
