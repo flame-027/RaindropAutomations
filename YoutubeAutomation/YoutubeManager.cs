@@ -9,18 +9,27 @@
     using Google.Apis.YouTube.v3;
     using Google.Apis.Services;
     using Google.Apis.YouTube.v3.Data;
-    using System.Net;
+    using YoutubeAutomation.Tools;
+
 
     public class YoutubeManager
     {
-        public HttpClient ApiHttpClient { get; set; }
+        //public HttpClient ApiHttpClient { get; set; }
+        private readonly UserCredential _userCredential;
 
         public YoutubeManager()
         {
-            ApiHttpClient = new HttpClient();
+            //ApiHttpClient = new HttpClient();
             //ApiHttpClient.BaseAddress = 
-        }
 
+            var scopeList = new List<string>()
+            {
+                YouTubeService.Scope.Youtube
+            };
+
+            _userCredential = GetUserCredentials(scopeList);
+            _userCredential.RefreshToken();
+        }
 
         public void Main()
         {
@@ -31,19 +40,13 @@
 
         }
 
-
         private void Test2()
         {
-            var scopeList = new List<string>()
-            {
-                YouTubeService.Scope.Youtube
-            };
-
-            var credentials = GetMyCredentials(scopeList);
+            _userCredential.RefreshToken();
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
-                HttpClientInitializer = credentials,
+                HttpClientInitializer = _userCredential,
                 ApplicationName = "MyAutomations",
             });
 
@@ -53,9 +56,6 @@
 
             //var playlistVideosAsIds = playlistVideos.Select(y => y.Id).ToList();
             var playlistVideosAsIds = playlistVideos.Select(x => $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}").ToList();
-
-
-
         }
 
 
@@ -106,23 +106,6 @@
         }
 
 
-        private static UserCredential GetMyCredentials(List<string> scopeList)
-        {
-            var cancel = new CancellationToken();
-
-            using var stream = new FileStream("C:\\users\\h\\downloads\\google-desktop.json", FileMode.Open, FileAccess.Read);
-            var credPath = "other_token.json";
-
-            var credentials = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                          GoogleClientSecrets.Load(stream).Secrets,
-                          scopeList,
-                          "h",
-                          cancel,
-                          new FileDataStore(credPath, true)).Result;
-
-            return credentials;
-        }
-
         private static List<Video> GetDetailsForAllVideos(YouTubeService service, List<string> videoIds)
         {
             var detailsRequest = service.Videos.List("snippet");
@@ -146,6 +129,24 @@
             return allPagesDetails;
         }
 
+
+        private static UserCredential GetUserCredentials(List<string> scopeList)
+        {
+            using var clientSecretsStream = new FileStream("C:\\users\\h\\downloads\\google-desktop.json", FileMode.Open, FileAccess.Read);
+            var credPath = "other_token.json";
+
+            var credentials = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                          GoogleClientSecrets.FromStream(clientSecretsStream).Secrets,
+                          scopeList,
+                          "h",
+                          CancellationToken.None,
+                          new FileDataStore(credPath, true)).Result;
+
+            return credentials;
+        }
+
+
+       
 
         //    private static Token GetElibilityToken(HttpClient client)
         //{
