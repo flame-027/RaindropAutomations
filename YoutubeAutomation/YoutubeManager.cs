@@ -50,6 +50,12 @@
             var selectedPlaylist = GetMyPlaylists(youtubeService).First(y => y.Snippet.Title == "dump-wl");  //.Select(x => x.Snippet)
 
             var playlistVideos = GetVideosFromPlaylist(youtubeService, selectedPlaylist.Id);
+
+            //var playlistVideosAsIds = playlistVideos.Select(y => y.Id).ToList();
+            var playlistVideosAsIds = playlistVideos.Select(x => $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}").ToList();
+
+
+
         }
 
 
@@ -60,12 +66,10 @@
             getPlaylistsRequest.Mine = true;
             getPlaylistsRequest.MaxResults = 50;
 
-            var playlistsFirstPage = getPlaylistsRequest.Execute();
-            var allPlaylists = playlistsFirstPage.Items.ToList();
+            var currentPlaylistPage = getPlaylistsRequest.Execute();
 
-
-            var currentPlaylistPage = playlistsFirstPage;
-
+            var allPlaylists = currentPlaylistPage.Items.ToList();
+          
             while (currentPlaylistPage.NextPageToken != null)
             {
                 getPlaylistsRequest.PageToken = currentPlaylistPage.NextPageToken;
@@ -85,11 +89,9 @@
             getVideosRequest.PlaylistId = playlistId;
             getVideosRequest.MaxResults = 50;
 
-            var videosFirstPage = getVideosRequest.Execute();
+            var currentVideoPage = getVideosRequest.Execute();
 
-            var allVideos = videosFirstPage.Items.ToList();
-
-            var currentVideoPage = videosFirstPage;
+            var allVideos = currentVideoPage.Items.ToList();
 
             while (currentVideoPage.NextPageToken != null)
             {
@@ -107,7 +109,7 @@
         private static UserCredential GetMyCredentials(List<string> scopeList)
         {
             var cancel = new CancellationToken();
-        
+
             using var stream = new FileStream("C:\\users\\h\\downloads\\google-desktop.json", FileMode.Open, FileAccess.Read);
             var credPath = "other_token.json";
 
@@ -121,51 +123,73 @@
             return credentials;
         }
 
+        private static List<Video> GetDetailsForAllVideos(YouTubeService service, List<string> videoIds)
+        {
+            var detailsRequest = service.Videos.List("snippet");
 
-    //    private static Token GetElibilityToken(HttpClient client)
-    //{
-    //    string baseAddress = @"https://accounts.google.com/o/oauth2/auth";
+            detailsRequest.Id = videoIds;
+            detailsRequest.MaxResults = 50;
 
-    //    string grant_type = "client_credentials";
-    //    string client_id = "REMOVED_CREDS";
-    //    string client_secret = "REMOVED_CREDS";
+            var currentDetailsPage = detailsRequest.Execute();
 
-    //    var responseType  = "code";
-    //    var scope = @"https://www.googleapis.com/auth/youtube";
-    //    var redirectUrl = @"http://localhost:8080";
+            var allPagesDetails = currentDetailsPage.Items.ToList();
+         
+            while (currentDetailsPage.NextPageToken != null)
+            {
+                detailsRequest.AccessToken = currentDetailsPage.NextPageToken;
+                var newDetailsPage = detailsRequest.Execute();
 
-    //    var form = new Dictionary<string, string>
-    //            {
-    //                //{"grant_type", grant_type},
-    //                {"client_id", client_id},
-    //                //{"client_secret", client_secret},
-    //                {"response_type", responseType },
-    //                {"scope", scope},
-    //                {"acess-type", "offline"},
-    //                {"redirect_uri", redirectUrl}          
-    //            };
+                allPagesDetails.AddRange(newDetailsPage.Items);
+                currentDetailsPage = newDetailsPage;
+            }
 
-    //    var tokenResponse = client.PostAsync(baseAddress, new FormUrlEncodedContent(form)).Result;
-    //    var jsonContent =  tokenResponse.Content.ReadAsStringAsync().Result;
-    //    var tok = JsonConvert.DeserializeObject<Token>(jsonContent);
-    //    return tok;
-    //}
+            return allPagesDetails;
+        }
 
 
-    //internal class Token
-    //{
-    //    [JsonProperty("access_token")]
-    //    public string AccessToken { get; set; }
+        //    private static Token GetElibilityToken(HttpClient client)
+        //{
+        //    string baseAddress = @"https://accounts.google.com/o/oauth2/auth";
 
-    //    [JsonProperty("token_type")]
-    //    public string TokenType { get; set; }
+        //    string grant_type = "client_credentials";
+        //    string client_id = "REMOVED_CREDS";
+        //    string client_secret = "REMOVED_CREDS";
 
-    //    [JsonProperty("expires_in")]
-    //    public int ExpiresIn { get; set; }
+        //    var responseType  = "code";
+        //    var scope = @"https://www.googleapis.com/auth/youtube";
+        //    var redirectUrl = @"http://localhost:8080";
 
-    //    [JsonProperty("refresh_token")]
-    //    public string RefreshToken { get; set; }
-    //}
+        //    var form = new Dictionary<string, string>
+        //            {
+        //                //{"grant_type", grant_type},
+        //                {"client_id", client_id},
+        //                //{"client_secret", client_secret},
+        //                {"response_type", responseType },
+        //                {"scope", scope},
+        //                {"acess-type", "offline"},
+        //                {"redirect_uri", redirectUrl}          
+        //            };
 
-}
+        //    var tokenResponse = client.PostAsync(baseAddress, new FormUrlEncodedContent(form)).Result;
+        //    var jsonContent =  tokenResponse.Content.ReadAsStringAsync().Result;
+        //    var tok = JsonConvert.DeserializeObject<Token>(jsonContent);
+        //    return tok;
+        //}
+
+
+        //internal class Token
+        //{
+        //    [JsonProperty("access_token")]
+        //    public string AccessToken { get; set; }
+
+        //    [JsonProperty("token_type")]
+        //    public string TokenType { get; set; }
+
+        //    [JsonProperty("expires_in")]
+        //    public int ExpiresIn { get; set; }
+
+        //    [JsonProperty("refresh_token")]
+        //    public string RefreshToken { get; set; }
+        //}
+    }
 }
