@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.YouTube.v3.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,14 @@ namespace YoutubeAutomation.Tools
             if (credential.Token.IsStale)
                 credential.RefreshTokenAsync(CancellationToken.None);
         }
+
+        // move this to core project extention methods later
+        //public static string ParentOfDoubleSlashPath(this string input)
+        //{
+        //    var output = Directory.GetParent(input);
+
+        //    return output;
+        //}
 
     }
 }
