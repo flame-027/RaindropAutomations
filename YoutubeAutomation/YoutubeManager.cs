@@ -10,25 +10,31 @@
     using Google.Apis.Services;
     using Google.Apis.YouTube.v3.Data;
     using YoutubeAutomation.Tools;
+    using System.IO;
 
 
     public class YoutubeManager
     {
-        //public HttpClient ApiHttpClient { get; set; }
-        private readonly UserCredential _userCredential;
+        private readonly UserCredential _userToken;
+        private readonly string _applicationName;
+        private readonly string _credentialPath;
+        private readonly string _tokenPath;
 
         public YoutubeManager()
         {
-            //ApiHttpClient = new HttpClient();
-            //ApiHttpClient.BaseAddress = 
+            _applicationName = "MyAutomations";
+            _credentialPath = "C:\\users\\h\\downloads\\google-desktop.json";
+            _tokenPath = "Token";
 
+            //var test = $"{AppDomain.CurrentDomain.BaseDirectory}".ParentOfDoubleSlashPath();
+           
             var scopeList = new List<string>()
             {
                 YouTubeService.Scope.Youtube
             };
 
-            _userCredential = GetUserCredentials(scopeList);
-            _userCredential.RefreshToken();
+            _userToken = GetUserToken(scopeList);
+            _userToken.RefreshToken();
         }
 
         public void Main()
@@ -42,12 +48,12 @@
 
         private void Test2()
         {
-            _userCredential.RefreshToken();
+            _userToken.RefreshToken();
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
-                HttpClientInitializer = _userCredential,
-                ApplicationName = "MyAutomations",
+                HttpClientInitializer = _userToken,
+                ApplicationName = _applicationName
             });
 
             var selectedPlaylist = GetMyPlaylists(youtubeService).First(y => y.Snippet.Title == "dump-wl");  //.Select(x => x.Snippet)
@@ -130,19 +136,18 @@
         }
 
 
-        private static UserCredential GetUserCredentials(List<string> scopeList)
+        private UserCredential GetUserToken(List<string> scopeList)
         {
-            using var clientSecretsStream = new FileStream("C:\\users\\h\\downloads\\google-desktop.json", FileMode.Open, FileAccess.Read);
-            var credPath = "other_token.json";
+            using var clientSecretsStream = new FileStream(_credentialPath, FileMode.Open, FileAccess.Read);
 
-            var credentials = GoogleWebAuthorizationBroker.AuthorizeAsync(
+            var userToken = GoogleWebAuthorizationBroker.AuthorizeAsync(
                           GoogleClientSecrets.FromStream(clientSecretsStream).Secrets,
                           scopeList,
                           "h",
                           CancellationToken.None,
-                          new FileDataStore(credPath, true)).Result;
+                          new FileDataStore(_tokenPath, true)).Result;
 
-            return credentials;
+            return userToken;
         }
 
 
