@@ -39,14 +39,14 @@
 
         public void Main()
         {
-            Test2();
+            GetVideoUrlsFromPlaylist();
 
             //var httpClient = new HttpClient();
             //var test = GetElibilityToken(httpClient);
 
         }
 
-        private void Test2()
+        public List<string> GetVideoUrlsFromPlaylist(string playlistName)
         {
             _userToken.RefreshToken();
 
@@ -55,13 +55,26 @@
                 HttpClientInitializer = _userToken,
                 ApplicationName = _applicationName
             });
+#
+            var playlistVideosAsUrls = new List<string>();
+            var allPlaylists =  GetMyPlaylists(youtubeService);
 
-            var selectedPlaylist = GetMyPlaylists(youtubeService).First(y => y.Snippet.Title == "dump-wl");  //.Select(x => x.Snippet)
+            if (allPlaylists.Count > 0)
+            {
+                var selectedPlaylist = allPlaylists.FirstOrDefault(y => y.Snippet.Title == playlistName);
 
-            var playlistVideos = GetVideosFromPlaylist(youtubeService, selectedPlaylist.Id);
+                if(selectedPlaylist == null)
+                  throw InvalidOperationException("Did not find a playlist with that name")
 
-            //var playlistVideosAsIds = playlistVideos.Select(y => y.Id).ToList();
-            var playlistVideosAsIds = playlistVideos.Select(x => $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}").ToList();
+                var playlistVideos = GetVideosFromPlaylist(youtubeService, selectedPlaylist.Id);
+                playlistVideosAsUrls = playlistVideos.Select(x => $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}").ToList();
+            }
+            else
+            {
+                throw InvalidOperationException("Did not get any playlists back from Youtube");
+            } 
+
+            return playlistVideosAsUrls;
         }
 
 
@@ -74,7 +87,10 @@
 
             var currentPlaylistPage = getPlaylistsRequest.Execute();
 
-            var allPlaylists = currentPlaylistPage.Items.ToList();
+            var allPlaylists = currentPlaylistPage?.Items?.ToList();
+
+            if(allPlaylists == null)
+                    return new List<Playlist>();
           
             while (currentPlaylistPage.NextPageToken != null)
             {
@@ -97,7 +113,10 @@
 
             var currentVideoPage = getVideosRequest.Execute();
 
-            var allVideos = currentVideoPage.Items.ToList();
+            var allVideos = currentVideoPage?.Items?.ToList();
+
+            if (allVideos == null)
+                return new List<PlaylistItem>();
 
             while (currentVideoPage.NextPageToken != null)
             {
@@ -121,8 +140,11 @@
 
             var currentDetailsPage = detailsRequest.Execute();
 
-            var allPagesDetails = currentDetailsPage.Items.ToList();
-         
+            var allPagesDetails = currentDetailsPage?.Items?.ToList();
+
+            if (allPagesDetails == null)
+                return new List<Video>();
+
             while (currentDetailsPage.NextPageToken != null)
             {
                 detailsRequest.AccessToken = currentDetailsPage.NextPageToken;
