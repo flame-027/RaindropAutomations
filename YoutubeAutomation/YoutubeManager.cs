@@ -39,7 +39,7 @@
 
         public void Main()
         {
-            GetVideoUrlsFromPlaylist();
+            //GetVideoUrlsFromPlaylist();
 
             //var httpClient = new HttpClient();
             //var test = GetElibilityToken(httpClient);
@@ -55,23 +55,23 @@
                 HttpClientInitializer = _userToken,
                 ApplicationName = _applicationName
             });
-#
+
             var playlistVideosAsUrls = new List<string>();
-            var allPlaylists =  GetMyPlaylists(youtubeService);
+            var allPlaylists = GetMyPlaylists(youtubeService);
 
             if (allPlaylists.Count > 0)
             {
                 var selectedPlaylist = allPlaylists.FirstOrDefault(y => y.Snippet.Title == playlistName);
 
-                if(selectedPlaylist == null)
-                  throw InvalidOperationException("Did not find a playlist with that name")
+                if (selectedPlaylist == null)
+                    throw new InvalidOperationException("Did not find a playlist with that name");
 
                 var playlistVideos = GetVideosFromPlaylist(youtubeService, selectedPlaylist.Id);
                 playlistVideosAsUrls = playlistVideos.Select(x => $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}").ToList();
             }
             else
             {
-                throw InvalidOperationException("Did not get any playlists back from Youtube");
+                throw new InvalidOperationException("Did not get any playlists back from Youtube");
             } 
 
             return playlistVideosAsUrls;
