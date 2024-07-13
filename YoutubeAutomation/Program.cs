@@ -1,6 +1,6 @@
 ﻿namespace YoutubeAutomation
 {
-    public class Program : YoutubeManager
+    public class Program
     {
         static void Main(string[] args)
         {
