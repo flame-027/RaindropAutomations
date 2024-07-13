@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using RaindropAutomations.models;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,13 @@ namespace RaindropAutomations
     {
         private readonly string _apiToken;
         private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public RaindropManager()
+        public RaindropManager(IConfiguration config)
         {
-            _apiToken = "";
+            _configuration = config;
+
+            _apiToken = config.GetSection("Raindrop")?.GetSection("ApiToken")?.Value ?? string.Empty;
 
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiToken);       

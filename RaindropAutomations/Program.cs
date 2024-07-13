@@ -1,4 +1,5 @@
-﻿using RaindropAutomations.models;
+﻿using Microsoft.Extensions.Configuration;
+using RaindropAutomations.models;
 using System.Net.Mail;
 
 namespace RaindropAutomations
@@ -7,7 +8,13 @@ namespace RaindropAutomations
     {
         static void Main(string[] args)
         {
-            var manager = new RaindropManager();
+            var config = new ConfigurationBuilder()
+             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            // .AddJsonFile("appsettings.json")
+             .AddUserSecrets<Program>()
+             .Build();
+
+            var manager = new RaindropManager(config);
             //manager.CreateSingleBookmark();
 
             var bookmarks = new List<Bookmark>();
