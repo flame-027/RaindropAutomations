@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using RaindropAutomations.models;
 using System.Net.Mail;
+using YoutubeAutomation;
 
 namespace RaindropAutomations
 {
@@ -14,31 +15,49 @@ namespace RaindropAutomations
              .AddUserSecrets<Program>()
              .Build();
 
-            var manager = new RaindropManager(config);
-            //manager.CreateSingleBookmark();
+            var youtubeManager = new YoutubeManager();
+            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylist("dump-wl");
 
-            var bookmarks = new List<Bookmark>();
+            var raindropManager = new RaindropManager(config);
+          
 
-            var bookmark1 = new Bookmark()
+            var collection = new Collection { Id = 42221693 };
+            var youtubeBookmarks = videoUrls.Select
+                (
+                   x => new Bookmark {Link = x, Collection = collection, PleaseParse = new()}
+                );
+
+            var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
+
+            foreach (var bookmarksList in videoBookmarksInChuncks)
             {
-                Link = @"https://www.youtube.com/watch?v=j5q9t4hXZz4",
-                Collection = new Collection {Id = 43166517},
-                PleaseParse = new(),
-            };
+                var bookmarksCollection = new BookmarksCollection {Result = true, Bookmarks = bookmarksList};
+                raindropManager.CreateMultipleBookmarks(bookmarksCollection);
+            }
 
-            var bookmark2 = new Bookmark()
-            {
-                Link = @"https://www.youtube.com/watch?v=5rSU21PXTGE",
-                Collection = new Collection {Id = 43166517},
-                PleaseParse = new(),
-            };
 
-            bookmarks.Add(bookmark1);
-            bookmarks.Add(bookmark2);
 
-            var bookmarksCollection = new BookmarksCollection {Result = true, Bookmarks = bookmarks};
+            //var bookmarks = new List<Bookmark>();
 
-            manager.CreateMultipleBookmarks(bookmarksCollection);
+            //var bookmark1 = new Bookmark()
+            //{
+            //    Link = @"https://www.youtube.com/watch?v=j5q9t4hXZz4",
+            //    Collection = new Collection {Id = 43166517},
+            //    PleaseParse = new(),
+            //};
+
+            //var bookmark2 = new Bookmark()
+            //{
+            //    Link = @"https://www.youtube.com/watch?v=5rSU21PXTGE",
+            //    Collection = new Collection {Id = 43166517},
+            //    PleaseParse = new(),
+            //};
+
+            //bookmarks.Add(bookmark1);
+            //bookmarks.Add(bookmark2);
+
+
+
         }
     }
 }
