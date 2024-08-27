@@ -16,26 +16,10 @@ namespace RaindropAutomations
              .Build();
 
             var youtubeManager = new YoutubeManager();
-            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylist("dump-wl");
+            var raindropCollectionId = 42221693;
+            var youtubePlaylistName = "dump-wl";
 
-            var raindropManager = new RaindropManager(config);
-          
-
-            var collection = new Collection { Id = 42221693 };
-            var youtubeBookmarks = videoUrls.Select
-                (
-                   x => new Bookmark {Link = x, Collection = collection, PleaseParse = new()}
-                );
-
-            var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
-
-            foreach (var bookmarksList in videoBookmarksInChuncks)
-            {
-                var bookmarksCollection = new BookmarksCollection {Result = true, Bookmarks = bookmarksList};
-                raindropManager.CreateMultipleBookmarks(bookmarksCollection);
-            }
-
-
+            YoutubePlaylistToRaindrop(config, youtubeManager, youtubePlaylistName, raindropCollectionId);
 
             //var bookmarks = new List<Bookmark>();
 
@@ -55,9 +39,28 @@ namespace RaindropAutomations
 
             //bookmarks.Add(bookmark1);
             //bookmarks.Add(bookmark2);
+        }
+
+        private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, string playlistName, int raindropCollectionId)
+        {
+            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylist(playlistName);
+
+            var raindropManager = new RaindropManager(config);
 
 
+            var collection = new Collection { Id = raindropCollectionId };
+            var youtubeBookmarks = videoUrls.Select
+                (
+                   x => new Bookmark { Link = x, Collection = collection, PleaseParse = new() }
+                );
 
+            var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
+
+            foreach (var bookmarksList in videoBookmarksInChuncks)
+            {
+                var bookmarksCollection = new BookmarksCollection { Result = true, Bookmarks = bookmarksList };
+                raindropManager.CreateMultipleBookmarks(bookmarksCollection);
+            }
         }
     }
 }
