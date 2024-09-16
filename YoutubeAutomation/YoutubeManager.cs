@@ -11,7 +11,8 @@
     using Google.Apis.YouTube.v3.Data;
     using YoutubeAutomation.Tools;
     using System.IO;
-
+    using Microsoft.Playwright;
+    using RainDropAutomations.Youtube;
 
     public class YoutubeManager
     {
@@ -22,19 +23,17 @@
 
         public YoutubeManager()
         {
-            _applicationName = "MyAutomations";
-            _credentialPath = "C:\\users\\h\\downloads\\google-desktop.json";
-            _tokenPath = "Token";
-
-            //var test = $"{AppDomain.CurrentDomain.BaseDirectory}".ParentOfDoubleSlashPath();
+            //_applicationName = "MyAutomations";
+            //_credentialPath = "C:\\users\\h\\downloads\\google-desktop.json";
+            //_tokenPath = "Token";
            
-            var scopeList = new List<string>()
-            {
-                YouTubeService.Scope.Youtube
-            };
+            //var scopeList = new List<string>()
+            //{
+            //    YouTubeService.Scope.Youtube
+            //};
 
-            _userToken = GetUserToken(scopeList);
-            _userToken.RefreshToken();
+            //_userToken = GetUserToken(scopeList);
+            //_userToken.RefreshToken();
         }
 
         public void Main()
@@ -76,6 +75,78 @@
 
             return playlistVideosAsUrls;
         }
+
+        public List<string> GetVideoUrlsFromPlaylist(string playlistName, object test)
+        {
+            var userDataDir = "D:\\Files (Users)\\Projects\\Programming\\RaindropAutomation-Stuff\\Playwright-Browser-Data";
+
+            var playwright = Playwright.CreateAsync().Result;
+            var browser = playwright.Chromium.LaunchPersistentContextAsync(userDataDir, new BrowserTypeLaunchPersistentContextOptions
+            {
+                Headless = false, //
+                Args = ["--start-maximized", /*"--disable-blink-features=AutomationControlled"*/],
+                //ChromiumSandbox = false
+                //IgnoreDefaultArgs = new[] { "--enable-automation" }
+            }).Result;
+
+            var page = browser.Pages.FirstOrDefault() ??  browser.NewPageAsync().Result;
+
+            page.GotoAsync("https://www.youtube.com/playlist?list=WL");
+
+            page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+
+            Thread.Sleep(1500);
+
+            // JavaScript code to scroll to the bottom
+            string scrollScript = @"
+            (async () => {
+                const scrollToBottom = async () => {
+                    let scrollHeight = document.documentElement.scrollHeight;
+                    let clientHeight = document.documentElement.clientHeight;
+                    let scrollPosition = 0;
+
+                    // Loop to scroll until bottom is reached
+                    while (scrollPosition + clientHeight < scrollHeight) {
+                        window.scrollBy(0, clientHeight);
+                        scrollPosition = document.documentElement.scrollTop;
+
+                        // Wait for more content to load
+                        await new Promise(resolve => setTimeout(resolve, 300));
+
+                        // Update heights in case of dynamic content
+                        scrollHeight = document.documentElement.scrollHeight;
+                    }
+                };
+
+                await scrollToBottom();
+            })();
+        ";
+
+            var test2 = page.EvaluateAsync(scrollScript).Result;
+
+            page.WaitForTimeoutAsync(3000);
+
+
+
+            var elements =  page.QuerySelectorAllAsync("#video-title").Result;
+            var videoLinks = new List<YtVideoModel>();
+
+            foreach (var element in elements)
+            {
+                var href = element.EvaluateAsync<string>("el => el.href").Result;
+
+                if (href != null)
+                {
+                    var video = new YtVideoModel { rawVideoUrl = href };
+                    videoLinks.Add(video);
+                }
+            }
+
+            var result = videoLinks.Select(x => x.pureVideoUrl).ToList();
+
+            return result;
+        }
+
 
 
         private static List<Playlist> GetMyPlaylists(YouTubeService service)
