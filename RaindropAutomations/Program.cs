@@ -28,7 +28,6 @@ namespace RaindropAutomations
 
             var raindropManager = new RaindropManager(config);
 
-
             var collection = new Collection { Id = raindropCollectionId };
             var youtubeBookmarks = videoUrls.Select
                 (
