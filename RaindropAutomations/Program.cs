@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using RaindropAutomations.models;
+using RaindropAutomations.tools;
 using System.Net.Mail;
 using YoutubeAutomation;
 
@@ -16,7 +17,7 @@ namespace RaindropAutomations
                         .Build();
 
             var youtubeManager = new YoutubeManager();
-            var raindropCollectionId = 42221693;
+            var raindropCollectionId = Convert.ToInt32(config.GetFromRaindropConfig("WatchLaterOutputCollectionId").Value);
             var youtubePlaylistName = "dump-wl";
 
             YoutubePlaylistToRaindrop(config, youtubeManager, youtubePlaylistName, raindropCollectionId);
