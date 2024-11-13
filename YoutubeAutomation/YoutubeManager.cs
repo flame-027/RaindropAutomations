@@ -23,17 +23,17 @@
 
         public YoutubeManager()
         {
-            //_applicationName = "MyAutomations";
-            //_credentialPath = "C:\\users\\h\\downloads\\google-desktop.json";
-            //_tokenPath = "Token";
-           
-            //var scopeList = new List<string>()
-            //{
-            //    YouTubeService.Scope.Youtube
-            //};
+            _applicationName = "MyAutomations";
+            _credentialPath = "C:\\users\\h\\downloads\\google-desktop.json";
+            _tokenPath = "Token";
 
-            //_userToken = GetUserToken(scopeList);
-            //_userToken.RefreshToken();
+            var scopeList = new List<string>()
+            {
+                YouTubeService.Scope.Youtube
+            };
+
+            _userToken = GetUserToken(scopeList);
+            _userToken?.RefreshToken();
         }
 
 
@@ -233,62 +233,35 @@
 
         private UserCredential GetUserToken(List<string> scopeList)
         {
-            using var clientSecretsStream = new FileStream(_credentialPath, FileMode.Open, FileAccess.Read);
+
+            Stream clientSecretsStream = null;
+
+            try
+            {
+                clientSecretsStream = new FileStream(_credentialPath, FileMode.Open, FileAccess.Read);
+            }
+            catch (FileNotFoundException ex)
+            {
+                Console.WriteLine($"File not found: {_credentialPath}. Exception: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error accessing client secrets file: {ex.Message}");
+                return null;
+            }
 
             var userToken = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                          GoogleClientSecrets.FromStream(clientSecretsStream).Secrets,
-                          scopeList,
-                          "h",
-                          CancellationToken.None,
-                          new FileDataStore(_tokenPath, true)).Result;
+                              GoogleClientSecrets.FromStream(clientSecretsStream).Secrets,
+                              scopeList,
+                              "h",
+                              CancellationToken.None,
+                              new FileDataStore(_tokenPath, true)).Result;
+
+            clientSecretsStream.Dispose();
 
             return userToken;
         }
 
-
-        //    private static Token GetElibilityToken(HttpClient client)
-        //{
-        //    string baseAddress = @"https://accounts.google.com/o/oauth2/auth";
-
-        //    string grant_type = "client_credentials";
-        //    string client_id = "REMOVED_CREDS";
-        //    string client_secret = "REMOVED_CREDS";
-
-        //    var responseType  = "code";
-        //    var scope = @"https://www.googleapis.com/auth/youtube";
-        //    var redirectUrl = @"http://localhost:8080";
-
-        //    var form = new Dictionary<string, string>
-        //            {
-        //                //{"grant_type", grant_type},
-        //                {"client_id", client_id},
-        //                //{"client_secret", client_secret},
-        //                {"response_type", responseType },
-        //                {"scope", scope},
-        //                {"acess-type", "offline"},
-        //                {"redirect_uri", redirectUrl}          
-        //            };
-
-        //    var tokenResponse = client.PostAsync(baseAddress, new FormUrlEncodedContent(form)).Result;
-        //    var jsonContent =  tokenResponse.Content.ReadAsStringAsync().Result;
-        //    var tok = JsonConvert.DeserializeObject<Token>(jsonContent);
-        //    return tok;
-        //}
-
-
-        //internal class Token
-        //{
-        //    [JsonProperty("access_token")]
-        //    public string AccessToken { get; set; }
-
-        //    [JsonProperty("token_type")]
-        //    public string TokenType { get; set; }
-
-        //    [JsonProperty("expires_in")]
-        //    public int ExpiresIn { get; set; }
-
-        //    [JsonProperty("refresh_token")]
-        //    public string RefreshToken { get; set; }
-        //}
     }
 }
