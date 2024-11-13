@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace RainDropAutomations.Youtube.models
 {
-    public class YtVideoModel
+    public class YtVideoUrlModel
     {
-        public string rawVideoUrl { get; set; }
+        public string rawCapturedVideoUrl { get; set; }
 
-        public string pureVideoUrl => rawVideoUrl.Split('&')[0];
+        public string pureVideoUrl => rawCapturedVideoUrl.Split('&')[0];
     }
 }

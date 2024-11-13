@@ -32,7 +32,7 @@ namespace RaindropAutomations
             var collection = new Collection { Id = raindropCollectionId };
             var youtubeBookmarks = videoUrls.Select
                 (
-                   x => new Bookmark { Link = x, Collection = collection, PleaseParse = new() }
+                   x => new Bookmark { Link = x.pureVideoUrl, Collection = collection, PleaseParse = new() }
                 );
 
             var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();

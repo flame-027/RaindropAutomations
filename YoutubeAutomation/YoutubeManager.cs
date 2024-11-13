@@ -36,7 +36,7 @@
             _userToken?.RefreshToken();
         }
 
-        public List<string> GetVideoUrlsFromPlaylist(string playlistName)
+        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylist(string playlistName)
         {
             _userToken.RefreshToken();
 
@@ -46,7 +46,7 @@
                 ApplicationName = _applicationName
             });
 
-            var playlistVideosAsUrls = new List<string>();
+            var playlistVideosModels = new List<YtVideoUrlModel>();
             var allPlaylists = GetMyPlaylists(youtubeService);
 
             if (allPlaylists.Count > 0)
@@ -57,18 +57,18 @@
                     throw new InvalidOperationException("Did not find a playlist with that name");
 
                 var playlistVideos = GetVideosFromPlaylist(youtubeService, selectedPlaylist.Id);
-                playlistVideosAsUrls = playlistVideos.Select(x => $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}").ToList();
+                playlistVideosModels = playlistVideos.Select(x => new YtVideoUrlModel { rawCapturedVideoUrl = $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}" }).ToList();
             }
             else
             {
                 throw new InvalidOperationException("Did not get any playlists back from Youtube");
             } 
 
-            return playlistVideosAsUrls;
+            return playlistVideosModels;
         }
 
 
-        public List<string> GetVideoUrlsFromPlaylist(string playlistName, object test)
+        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylist(string playlistName, object test)
         {
             var userDataDir = "D:\\Files (Users)\\Projects\\Programming\\RaindropAutomation-Stuff\\Playwright-Browser-Data";
 
@@ -114,14 +114,12 @@
             })();
         ";
 
-            var test2 = page.EvaluateAsync(scrollScript).Result;
+            var debuggingResult = page.EvaluateAsync(scrollScript).Result;
 
             page.WaitForTimeoutAsync(3000);
 
-
-
             var elements =  page.QuerySelectorAllAsync("#video-title").Result;
-            var videoLinks = new List<YtVideoModel>();
+            var videoLinks = new List<YtVideoUrlModel>();
 
             foreach (var element in elements)
             {
@@ -129,14 +127,12 @@
 
                 if (href != null)
                 {
-                    var video = new YtVideoModel { rawVideoUrl = href };
+                    var video = new YtVideoUrlModel { rawCapturedVideoUrl = href };
                     videoLinks.Add(video);
                 }
             }
 
-            var result = videoLinks.Select(x => x.pureVideoUrl).ToList();
-
-            return result;
+            return videoLinks;
         }
 
 
