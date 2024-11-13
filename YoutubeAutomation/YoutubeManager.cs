@@ -36,17 +36,6 @@
             _userToken?.RefreshToken();
         }
 
-
-        public void Main()
-        {
-            //GetVideoUrlsFromPlaylist();
-
-            //var httpClient = new HttpClient();
-            //var test = GetElibilityToken(httpClient);
-
-        }
-
-
         public List<string> GetVideoUrlsFromPlaylist(string playlistName)
         {
             _userToken.RefreshToken();
