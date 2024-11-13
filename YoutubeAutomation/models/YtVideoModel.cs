@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RainDropAutomations.Youtube
+namespace RainDropAutomations.Youtube.models
 {
     public class YtVideoModel
     {

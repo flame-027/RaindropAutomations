@@ -12,7 +12,7 @@
     using YoutubeAutomation.Tools;
     using System.IO;
     using Microsoft.Playwright;
-    using RainDropAutomations.Youtube;
+    using RainDropAutomations.Youtube.models;
 
     public class YoutubeManager
     {
