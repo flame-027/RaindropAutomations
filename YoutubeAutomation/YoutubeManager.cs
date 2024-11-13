@@ -36,6 +36,7 @@
             //_userToken.RefreshToken();
         }
 
+
         public void Main()
         {
             //GetVideoUrlsFromPlaylist();
@@ -44,6 +45,7 @@
             //var test = GetElibilityToken(httpClient);
 
         }
+
 
         public List<string> GetVideoUrlsFromPlaylist(string playlistName)
         {
@@ -75,6 +77,7 @@
 
             return playlistVideosAsUrls;
         }
+
 
         public List<string> GetVideoUrlsFromPlaylist(string playlistName, object test)
         {
@@ -146,7 +149,6 @@
 
             return result;
         }
-
 
 
         private static List<Playlist> GetMyPlaylists(YouTubeService service)
@@ -243,8 +245,6 @@
             return userToken;
         }
 
-
-       
 
         //    private static Token GetElibilityToken(HttpClient client)
         //{
