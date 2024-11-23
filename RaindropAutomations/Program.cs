@@ -16,15 +16,24 @@ namespace RaindropAutomations
                         .AddUserSecrets<Program>()
                         .Build();
 
-            var youtubeManager = new YoutubeManager();
-            var raindropCollectionId = Convert.ToInt32(config.GetFromRaindropConfig("WatchLaterOutputCollectionId").Value);
-            var youtubePlaylistName = "dump-wl";
+            var googleApiConfig = config.GetSection("GoogleApi");
 
-            YoutubePlaylistToRaindrop(config, youtubeManager, youtubePlaylistName, raindropCollectionId);
+            var applicationName = googleApiConfig.GetSection("ApplicationName").Value;
+            var credentialsPath = googleApiConfig.GetSection("CredentialsPath").Value;
+            var tokenPath = googleApiConfig.GetSection("TokenFilePath").Value;
+
+            var raindropCollectionId = int.Parse(config.GetFromRaindropConfig("WatchLaterOutputCollectionId").Value);
+
+            var youtubeManager = new YoutubeManager(applicationName, credentialsPath, tokenPath);
+             
+            YoutubePlaylistToRaindrop(config, youtubeManager, raindropCollectionId);
         }
 
-        private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, string playlistName, int raindropCollectionId)
+        private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, int raindropCollectionId)
         {
+            // for ViaApi version of method
+            // var youtubePlaylistName = "dump-wl";
+
             var chromuimDataDirectory = @config.GetSection("Playwright")
                                                 .GetSection("Chromium")
                                                 .GetSection("DataDirectory").Value;

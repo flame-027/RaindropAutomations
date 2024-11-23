@@ -18,14 +18,14 @@
     {
         private readonly UserCredential _userToken;
         private readonly string _applicationName;
-        private readonly string _credentialPath;
-        private readonly string _tokenPath;
+        private readonly string _credentialsRetriveFilePath;
+        private readonly string _tokenRetriveAndSaveFilePath;
 
-        public YoutubeManager()
+        public YoutubeManager(string applicationName, string credentialsRetriveFilePath, string tokenRetriveAndSaveFilePath)
         {
-            _applicationName = "MyAutomations";
-            _credentialPath = "C:\\users\\h\\downloads\\google-desktop.json";
-            _tokenPath = "Token";
+            _applicationName = applicationName;
+            _credentialsRetriveFilePath = credentialsRetriveFilePath;
+            _tokenRetriveAndSaveFilePath = tokenRetriveAndSaveFilePath;
 
             var scopeList = new List<string>()
             {
@@ -223,11 +223,11 @@
 
             try
             {
-                clientSecretsStream = new FileStream(_credentialPath, FileMode.Open, FileAccess.Read);
+                clientSecretsStream = new FileStream(_credentialsRetriveFilePath, FileMode.Open, FileAccess.Read);
             }
             catch (FileNotFoundException ex)
             {
-                Console.WriteLine($"File not found: {_credentialPath}. Exception: {ex.Message}");
+                Console.WriteLine($"File not found: {_credentialsRetriveFilePath}. Exception: {ex.Message}");
                 return null;
             }
             catch (Exception ex)
@@ -241,7 +241,7 @@
                               scopeList,
                               "h",
                               CancellationToken.None,
-                              new FileDataStore(_tokenPath, true)).Result;
+                              new FileDataStore(_tokenRetriveAndSaveFilePath, true)).Result;
 
             clientSecretsStream.Dispose();
 
