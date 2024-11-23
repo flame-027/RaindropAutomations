@@ -83,7 +83,7 @@
 
             var page = browser.Pages.FirstOrDefault() ??  browser.NewPageAsync().Result;
 
-            page.GotoAsync("https://www.youtube.com/playlist?list=WL");
+            page.GotoAsync(playlistUrl);
 
             page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
 

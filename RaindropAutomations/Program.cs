@@ -25,7 +25,13 @@ namespace RaindropAutomations
 
         private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, string playlistName, int raindropCollectionId)
         {
-            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistName, "placeholder-dir-path");
+            var chromuimDataDirectory = @config.GetSection("Playwright")
+                                                .GetSection("Chromium")
+                                                .GetSection("DataDirectory").Value;
+
+            var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
+
+            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistUrl, chromuimDataDirectory);
 
             var raindropManager = new RaindropManager(config);
 
