@@ -36,7 +36,7 @@
             _userToken?.RefreshToken();
         }
 
-        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylist(string playlistName)
+        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylistViaAccountApi(string playlistName)
         {
             _userToken.RefreshToken();
 
@@ -68,12 +68,12 @@
         }
 
 
-        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylist(string playlistName, object test)
+        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylistViaScrapping(string playlistUrl, string chromuimDataDirectoryPath)
         {
-            var userDataDir = "D:\\Files (Users)\\Projects\\Programming\\RaindropAutomation-Stuff\\Playwright-Browser-Data";
+            var browserDataDirPath = chromuimDataDirectoryPath;
 
             var playwright = Playwright.CreateAsync().Result;
-            var browser = playwright.Chromium.LaunchPersistentContextAsync(userDataDir, new BrowserTypeLaunchPersistentContextOptions
+            var browser = playwright.Chromium.LaunchPersistentContextAsync(browserDataDirPath, new BrowserTypeLaunchPersistentContextOptions
             {
                 Headless = false, //
                 Args = ["--start-maximized", /*"--disable-blink-features=AutomationControlled"*/],
