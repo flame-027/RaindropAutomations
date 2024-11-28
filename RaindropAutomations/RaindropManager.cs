@@ -38,7 +38,7 @@ namespace RaindropAutomations
             var response = _httpClient.PostAsync("https://api.raindrop.io/rest/v1/raindrop", content).Result;
         }
 
-        public void CreateMultipleBookmarks(BookmarksCollection bookmarksCollection)
+        public void CreateMultipleBookmarks(BookmarksCreationPayload bookmarksCollection)
         {
             string bookmarkJson = JsonConvert.SerializeObject(bookmarksCollection);
             HttpContent content = new StringContent(bookmarkJson, Encoding.UTF8, "application/json");

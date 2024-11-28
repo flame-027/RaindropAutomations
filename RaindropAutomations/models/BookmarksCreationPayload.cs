@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RaindropAutomations.models
 {
-    public class BookmarksCollection
+    public class BookmarksCreationPayload
     {
         [JsonProperty("result")]
         public bool Result { get; set; }
