@@ -24,24 +24,26 @@ namespace RaindropAutomations
 
         private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, string playlistName, int raindropCollectionId)
         {
-            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylist(playlistName, new object());
+            //var videoUrls = youtubeManager.GetVideoUrlsFromPlaylist(playlistName, new object());
 
             var raindropManager = new RaindropManager(config);
 
+            var test = raindropManager.GetRaindropCollection(42221693);
 
-            var collection = new Collection { Id = raindropCollectionId };
-            var youtubeBookmarks = videoUrls.Select
-                (
-                   x => new Bookmark { Link = x, Collection = collection, PleaseParse = new() }
-                );
 
-            var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
+            //var collection = new Collection { Id = raindropCollectionId };
+            //var youtubeBookmarks = videoUrls.Select
+            //    (
+            //       x => new Bookmark { Link = x, Collection = collection, PleaseParse = new() }
+            //    );
 
-            foreach (var bookmarksList in videoBookmarksInChuncks)
-            {
-                var bookmarksCollection = new BookmarksCollection { Result = true, Bookmarks = bookmarksList };
-                raindropManager.CreateMultipleBookmarks(bookmarksCollection);
-            }
+            //var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
+
+            //foreach (var bookmarksList in videoBookmarksInChuncks)
+            //{
+            //    var bookmarksCollection = new BookmarksCollection { Result = true, Bookmarks = bookmarksList };
+            //    raindropManager.CreateMultipleBookmarks(bookmarksCollection);
+            //}
         }
     }
 }

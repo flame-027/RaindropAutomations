@@ -1,15 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using RaindropAutomations.models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection.Metadata;
 using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Text.Json;
+//using Newtonsoft.Json;
 
 namespace RaindropAutomations
 {
@@ -32,7 +27,7 @@ namespace RaindropAutomations
 
         public void CreateSingleBookmark(Bookmark bookmark)
         {
-            string bookmarkJson = JsonConvert.SerializeObject(bookmark);
+            string bookmarkJson = Newtonsoft.Json.JsonConvert.SerializeObject(bookmark);
             HttpContent content = new StringContent(bookmarkJson, Encoding.UTF8, "application/json");
 
             var response = _httpClient.PostAsync("https://api.raindrop.io/rest/v1/raindrop", content).Result;
@@ -40,10 +35,39 @@ namespace RaindropAutomations
 
         public void CreateMultipleBookmarks(BookmarksCreationPayload bookmarksCollection)
         {
-            string bookmarkJson = JsonConvert.SerializeObject(bookmarksCollection);
+            string bookmarkJson = Newtonsoft.Json.JsonConvert.SerializeObject(bookmarksCollection);
             HttpContent content = new StringContent(bookmarkJson, Encoding.UTF8, "application/json");
 
             var response = _httpClient.PostAsync("https://api.raindrop.io/rest/v1/raindrops", content).Result;
+        }
+
+        public object GetRaindropCollection(int collectionId)
+        {
+            var response = _httpClient.GetAsync($"https://api.raindrop.io/rest/v1/collection/{collectionId}").Result;
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonResult = response.Content.ReadAsStringAsync().Result; //?.Replace(@"$id", @"id");
+
+            //string pattern = @"\$\b(id)\b";
+
+            //jsonResult = Regex.Replace(jsonResult, pattern, "id");
+
+            //var settings = new JsonSerializerSettings
+            //{
+            //    PreserveReferencesHandling = PreserveReferencesHandling.None,
+            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            //    MetadataPropertyHandling = MetadataPropertyHandling.Ignore // Ignore $id as metadata
+            //};
+
+            //var resultModel = JsonConvert.DeserializeObject<RaindropSingleCollection>(jsonResult, settings);
+
+            var resultModel = JsonSerializer.Deserialize<RaindropSingleCollection>(jsonResult);
+
+            //var resultModel = JsonConvert
+
+            return resultModel;
+
         }
 
     }
