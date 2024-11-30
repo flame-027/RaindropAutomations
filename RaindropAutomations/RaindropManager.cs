@@ -85,6 +85,42 @@ namespace RaindropAutomations
 
             return resultModel;
         }
+
+        public RaindropTree GetDescendantCollectionsById(int parentCollectionId)
+        {
+            var allChildrenOnAccount = GetEveryChildCollectionOnAccount();
+
+            //var firstGenerationList = allChildrenOnAccount.Items.Where(x => x.Parent.Id == collectionId)?.Select(x => new RaindropTreeNode { Id = x.Id, Name = x.Title }).ToList();
+
+            //foreach (var child in firstGenerationList)
+            //{
+            //    GetMatchedChildren(child, allChildrenOnAccount);
+            //}
+
+            var parentCollection = new RaindropTreeNode { Id = parentCollectionId };
+            var payload = new RaindropTree();
+
+            MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIdsWithinTree);
+
+            var descendants = parentCollection.Children;
+            payload.TopNodes.AddRange(descendants);
+
+            return payload;
+        }
+
+        private void MatchChildrenAndSetToParentRecursively(RaindropCollections allChildrenOnAccount, RaindropTreeNode parent, List<long> masterIdList = null)
+        {
+            var allPossibleChildren = allChildrenOnAccount.Items;
+            var children = allPossibleChildren.Where(x => x.Parent.Id == parent.Id).Select(x => new RaindropTreeNode { Id = x.Id, Name = x.Title }).ToList();
+
+            parent.Children = children;
+
+            foreach(var child in children)
+            {
+                masterIdList?.Add(child.Id);
+                MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, child, masterIdList);
+            }
+        }
     }
 
 }
