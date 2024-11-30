@@ -107,7 +107,7 @@ namespace RaindropAutomations
             return payload;
         }
 
-        private void MatchChildrenAndSetToParentRecursively(RaindropCollections allChildrenOnAccount, RaindropTreeNode parent, List<long> masterIdList = null)
+        private static void MatchChildrenAndSetToParentRecursively(RaindropCollections allChildrenOnAccount, RaindropTreeNode parent, List<long> masterIdList = null)
         {
             var allPossibleChildren = allChildrenOnAccount.Items;
             var children = allPossibleChildren.Where(x => x.Parent.Id == parent.Id).Select(x => new RaindropTreeNode { Id = x.Id, Name = x.Title }).ToList();
