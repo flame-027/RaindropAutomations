@@ -41,7 +41,7 @@ namespace RaindropAutomations
             var response = _httpClient.PostAsync("https://api.raindrop.io/rest/v1/raindrops", content).Result;
         }
 
-        public object GetRaindropCollection(int collectionId)
+        public RaindropSingleCollection GetRaindropCollectionById(int collectionId)
         {
             var response = _httpClient.GetAsync($"https://api.raindrop.io/rest/v1/collection/{collectionId}").Result;
 
