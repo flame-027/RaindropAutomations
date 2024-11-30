@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Google.Apis.Auth.OAuth2.Responses;
+using Microsoft.Extensions.Configuration;
 using RaindropAutomations.models;
+using System.Net;
 using System.Net.Http.Headers;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
 //using Newtonsoft.Json;
@@ -120,6 +123,74 @@ namespace RaindropAutomations
                 MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, child, masterIdList);
             }
         }
+
+        public List<RaindropItem> GetAllBookmarksFromMultipleCollections(List<long> collectionIds)
+        {
+            var allBookmarks = new List<RaindropItem>();
+            var doneCollectionsCount = 0;
+
+            foreach (var id in collectionIds)
+            {
+                var currentPageIndex = 0;
+                var maxPerPage = 50;
+                var hasMorePages = false;
+
+                do
+                {
+                    var url = $"https://api.raindrop.io/rest/v1/raindrops/{id}?perpage={maxPerPage}&page={currentPageIndex}";
+
+                    HttpResponseMessage response = null;
+
+                    while (true)
+                    {
+                        try
+                        {
+                            response = _httpClient.GetAsync(url).Result;
+
+                            if (response.StatusCode == (HttpStatusCode)429)
+                            {
+                                var retryAfter = response.Headers.Contains("Retry-After")
+                                    ? int.Parse(response.Headers.GetValues("Retry-After").First())
+                                    : 5;
+
+                                Console.WriteLine($"Rate limit hit. Retrying after {retryAfter} seconds...");
+                                Thread.Sleep(retryAfter * 1000);
+                                continue; 
+                            }
+
+                            response.EnsureSuccessStatusCode();
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error: {ex.Message}");
+                            throw;
+                        }
+                    }
+
+                    var pageResponseJson = response.Content.ReadAsStringAsync().Result;
+                    var pageResponse = JsonSerializer.Deserialize<RaindropPageResponse>(pageResponseJson);
+
+                    if (pageResponse.Items != null)
+                    {
+                        allBookmarks.AddRange(pageResponse.Items);
+                        hasMorePages = pageResponse.Items.Count == maxPerPage;
+                    }
+                    else
+                    {
+                        hasMorePages = false;
+                    }
+
+                    currentPageIndex++;
+
+                } while (hasMorePages);
+
+                doneCollectionsCount++;
+            }
+
+            return allBookmarks;
+        }
+
     }
 
 }
