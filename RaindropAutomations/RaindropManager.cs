@@ -70,6 +70,21 @@ namespace RaindropAutomations
 
         }
 
+        public RaindropCollections GetEveryChildCollectionOnAccount()
+        {
+            var response = _httpClient.GetAsync($"https://api.raindrop.io/rest/v1/collections/childrens").Result;
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonResult = response.Content.ReadAsStringAsync().Result;
+
+            var resultModel = JsonSerializer.Deserialize<RaindropCollections>(jsonResult);
+
+            if (resultModel != null) 
+                 resultModel.Items = resultModel.Items.Where(x => x.Parent != null).ToList();
+
+            return resultModel;
+        }
     }
 
 }

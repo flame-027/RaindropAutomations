@@ -28,4 +28,13 @@ namespace RaindropAutomations.models
         [JsonPropertyName("view")]
         public string View { get; set; }
     }
+
+    public class RaindropParentCollection
+    {
+        [JsonPropertyName("$id")]
+        public long Id { get; set; }
+
+        [JsonPropertyName("$ref")]
+        public string Ref { get; set; }
+    }
 }
