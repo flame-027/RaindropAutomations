@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YoutubeAutomation\RainDropAutomations.Youtube.csproj" />
+    <ProjectReference Include="..\YoutubeAutomation\RaindropAutomations.Youtube.csproj" />
   </ItemGroup>
 
 </Project>

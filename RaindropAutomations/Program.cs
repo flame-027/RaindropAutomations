@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using RaindropAutomations.models;
+using RaindropAutomations.tools;
 using RainDropAutomations.Youtube;
+using RainDropAutomations.Youtube.models;
 using System.Net.Mail;
 using YoutubeAutomation;
 
@@ -16,15 +18,30 @@ namespace RaindropAutomations
                         .AddUserSecrets<Program>()
                         .Build();
 
-            var youtubeManager = new YoutubeManager();
-            var raindropCollectionId = 48328942;
-            var youtubePlaylistName = "dump-wl";
+            var googleApiConfig = config.GetSection("GoogleApi");
 
-            YoutubePlaylistToRaindrop(config, youtubeManager, youtubePlaylistName, raindropCollectionId);
+            var applicationName = googleApiConfig.GetSection("ApplicationName").Value;
+            var credentialsPath = googleApiConfig.GetSection("CredentialsPath").Value;
+            var tokenPath = googleApiConfig.GetSection("TokenFilePath").Value;
+
+            var raindropCollectionId = int.Parse(config.GetFromRaindropConfig("WatchLaterOutputCollectionId").Value);
+
+            var youtubeManager = new YoutubeManager(applicationName, credentialsPath, tokenPath);
+             
+            YoutubePlaylistToRaindrop(config, youtubeManager, raindropCollectionId);
         }
 
-        private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, string playlistName, int raindropCollectionId)
+        private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, int raindropCollectionId)
         {
+            // for ViaApi version of method
+            // var youtubePlaylistName = "dump-wl";
+
+            var chromuimDataDirectory = @config.GetSection("Playwright")
+                                                .GetSection("Chromium")
+                                                .GetSection("DataDirectory").Value;
+
+            var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
+
             var raindropManager = new RaindropManager(config);
 
             //var test = raindropManager.GetRaindropCollection(42221693);
@@ -32,19 +49,21 @@ namespace RaindropAutomations
             var allNestedCollectionInDestinationCollection = raindropManager.GetDescendantCollectionsById(42221693);
             var allNestedBookmarksInDestinationCollection = raindropManager.GetAllBookmarksFromMultipleCollections(allNestedCollectionInDestinationCollection.AllIdsWithinTree);
 
-            var allNestedBookmarksAsLinkStrings = allNestedBookmarksInDestinationCollection.Select(x => new YtVideoModel { rawVideoUrl = x.Link })
+            var allNestedBookmarksAsLinkStrings = allNestedBookmarksInDestinationCollection.Select(x => new YtVideoUrlModel { rawCapturedVideoUrl = x.Link })
                                                                                         .Select(x => x.pureVideoUrl)
                                                                                         .ToList();
 
-            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylist(playlistName, new object());
+            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistUrl, chromuimDataDirectory);
+
             var nonDuplicateVideoUrls = videoUrls.Where(x => !allNestedBookmarksAsLinkStrings.Contains(x)).ToList();
 
             var debuggingTest = nonDuplicateVideoUrls.Count;
             
             var collection = new Collection { Id = raindropCollectionId };
-            var youtubeBookmarks = videoUrls.Select
+
+            var youtubeBookmarks = nonDuplicateVideoUrls.Select
                 (
-                   x => new Bookmark { Link = x, Collection = collection, PleaseParse = new() }
+                   x => new Bookmark { Link = x.pureVideoUrl, Collection = collection, PleaseParse = new() }
                 );
 
             var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();

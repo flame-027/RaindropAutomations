@@ -16,13 +16,5 @@ namespace YoutubeAutomation.Tools
                 credential.RefreshTokenAsync(CancellationToken.None);
         }
 
-        // move this to core project extention methods later
-        //public static string ParentOfDoubleSlashPath(this string input)
-        //{
-        //    var output = Directory.GetParent(input);
-
-        //    return output;
-        //}
-
     }
 }

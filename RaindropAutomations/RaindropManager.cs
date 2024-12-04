@@ -1,9 +1,8 @@
-﻿using Google.Apis.Auth.OAuth2.Responses;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using RaindropAutomations.models;
+using RaindropAutomations.tools;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
 //using Newtonsoft.Json;
@@ -13,6 +12,7 @@ namespace RaindropAutomations
     public class RaindropManager
     {
         private readonly string _apiToken;
+        private readonly string _apiBaseUrl;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
 
@@ -20,7 +20,8 @@ namespace RaindropAutomations
         {
             _configuration = config;
 
-            _apiToken = config.GetSection("Raindrop")?.GetSection("ApiToken")?.Value ?? string.Empty;
+            _apiToken = config.GetFromRaindropConfig("ApiToken").Value ?? string.Empty;
+            _apiBaseUrl = config.GetFromRaindropConfig("ApiBaseUrl").Value ?? string.Empty;
 
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiToken);       
@@ -32,7 +33,7 @@ namespace RaindropAutomations
             string bookmarkJson = Newtonsoft.Json.JsonConvert.SerializeObject(bookmark);
             HttpContent content = new StringContent(bookmarkJson, Encoding.UTF8, "application/json");
 
-            var response = _httpClient.PostAsync("https://api.raindrop.io/rest/v1/raindrop", content).Result;
+            var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrop", content).Result;
         }
 
         public void CreateMultipleBookmarks(BookmarksCreationPayload bookmarksCollection)
@@ -40,7 +41,7 @@ namespace RaindropAutomations
             string bookmarkJson = Newtonsoft.Json.JsonConvert.SerializeObject(bookmarksCollection);
             HttpContent content = new StringContent(bookmarkJson, Encoding.UTF8, "application/json");
 
-            var response = _httpClient.PostAsync("https://api.raindrop.io/rest/v1/raindrops", content).Result;
+            var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrops", content).Result;
         }
 
         public RaindropSingleCollection GetRaindropCollectionById(int collectionId)

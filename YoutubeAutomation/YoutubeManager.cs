@@ -12,42 +12,31 @@
     using YoutubeAutomation.Tools;
     using System.IO;
     using Microsoft.Playwright;
-    using RainDropAutomations.Youtube;
+    using RainDropAutomations.Youtube.Models;
 
     public class YoutubeManager
     {
         private readonly UserCredential _userToken;
         private readonly string _applicationName;
-        private readonly string _credentialPath;
-        private readonly string _tokenPath;
+        private readonly string _credentialsRetriveFilePath;
+        private readonly string _tokenRetriveAndSaveFilePath;
 
-        public YoutubeManager()
+        public YoutubeManager(string applicationName, string credentialsRetriveFilePath, string tokenRetriveAndSaveFilePath)
         {
-            //_applicationName = "MyAutomations";
-            //_credentialPath = "C:\\users\\h\\downloads\\google-desktop.json";
-            //_tokenPath = "Token";
-           
-            //var scopeList = new List<string>()
-            //{
-            //    YouTubeService.Scope.Youtube
-            //};
+            _applicationName = applicationName;
+            _credentialsRetriveFilePath = credentialsRetriveFilePath;
+            _tokenRetriveAndSaveFilePath = tokenRetriveAndSaveFilePath;
 
-            //_userToken = GetUserToken(scopeList);
-            //_userToken.RefreshToken();
+            var scopeList = new List<string>()
+            {
+                YouTubeService.Scope.Youtube
+            };
+
+            _userToken = GetUserToken(scopeList);
+            _userToken?.RefreshToken();
         }
 
-
-        public void Main()
-        {
-            //GetVideoUrlsFromPlaylist();
-
-            //var httpClient = new HttpClient();
-            //var test = GetElibilityToken(httpClient);
-
-        }
-
-
-        public List<string> GetVideoUrlsFromPlaylist(string playlistName)
+        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylistViaAccountApi(string playlistName)
         {
             _userToken.RefreshToken();
 
@@ -57,7 +46,7 @@
                 ApplicationName = _applicationName
             });
 
-            var playlistVideosAsUrls = new List<string>();
+            var playlistVideosModels = new List<YtVideoUrlModel>();
             var allPlaylists = GetMyPlaylists(youtubeService);
 
             if (allPlaylists.Count > 0)
@@ -68,23 +57,23 @@
                     throw new InvalidOperationException("Did not find a playlist with that name");
 
                 var playlistVideos = GetVideosFromPlaylist(youtubeService, selectedPlaylist.Id);
-                playlistVideosAsUrls = playlistVideos.Select(x => $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}").ToList();
+                playlistVideosModels = playlistVideos.Select(x => new YtVideoUrlModel { rawCapturedVideoUrl = $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}" }).ToList();
             }
             else
             {
                 throw new InvalidOperationException("Did not get any playlists back from Youtube");
             } 
 
-            return playlistVideosAsUrls;
+            return playlistVideosModels;
         }
 
 
-        public List<string> GetVideoUrlsFromPlaylist(string playlistName, object test)
+        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylistViaScrapping(string playlistUrl, string chromuimDataDirectoryPath)
         {
-            var userDataDir = "D:\\Files (Users)\\Projects\\Programming\\RaindropAutomation-Stuff\\Playwright-Browser-Data";
+            var browserDataDirPath = chromuimDataDirectoryPath;
 
             var playwright = Playwright.CreateAsync().Result;
-            var browser = playwright.Chromium.LaunchPersistentContextAsync(userDataDir, new BrowserTypeLaunchPersistentContextOptions
+            var browser = playwright.Chromium.LaunchPersistentContextAsync(browserDataDirPath, new BrowserTypeLaunchPersistentContextOptions
             {
                 Headless = false, //
                 Args = ["--start-maximized", /*"--disable-blink-features=AutomationControlled"*/],
@@ -94,7 +83,7 @@
 
             var page = browser.Pages.FirstOrDefault() ??  browser.NewPageAsync().Result;
 
-            page.GotoAsync("https://www.youtube.com/playlist?list=WL");
+            page.GotoAsync(playlistUrl);
 
             page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
 
@@ -125,14 +114,12 @@
             })();
         ";
 
-            var test2 = page.EvaluateAsync(scrollScript).Result;
+            var debuggingResult = page.EvaluateAsync(scrollScript).Result;
 
             page.WaitForTimeoutAsync(3000);
 
-
-
             var elements =  page.QuerySelectorAllAsync("#video-title").Result;
-            var videoLinks = new List<YtVideoModel>();
+            var videoLinks = new List<YtVideoUrlModel>();
 
             foreach (var element in elements)
             {
@@ -140,14 +127,12 @@
 
                 if (href != null)
                 {
-                    var video = new YtVideoModel { rawVideoUrl = href };
+                    var video = new YtVideoUrlModel { rawCapturedVideoUrl = href };
                     videoLinks.Add(video);
                 }
             }
 
-            var result = videoLinks.Select(x => x.pureVideoUrl).ToList();
-
-            return result;
+            return videoLinks;
         }
 
 
@@ -233,62 +218,35 @@
 
         private UserCredential GetUserToken(List<string> scopeList)
         {
-            using var clientSecretsStream = new FileStream(_credentialPath, FileMode.Open, FileAccess.Read);
+
+            Stream clientSecretsStream = null;
+
+            try
+            {
+                clientSecretsStream = new FileStream(_credentialsRetriveFilePath, FileMode.Open, FileAccess.Read);
+            }
+            catch (FileNotFoundException ex)
+            {
+                Console.WriteLine($"File not found: {_credentialsRetriveFilePath}. Exception: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error accessing client secrets file: {ex.Message}");
+                return null;
+            }
 
             var userToken = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                          GoogleClientSecrets.FromStream(clientSecretsStream).Secrets,
-                          scopeList,
-                          "h",
-                          CancellationToken.None,
-                          new FileDataStore(_tokenPath, true)).Result;
+                              GoogleClientSecrets.FromStream(clientSecretsStream).Secrets,
+                              scopeList,
+                              "h",
+                              CancellationToken.None,
+                              new FileDataStore(_tokenRetriveAndSaveFilePath, true)).Result;
+
+            clientSecretsStream.Dispose();
 
             return userToken;
         }
 
-
-        //    private static Token GetElibilityToken(HttpClient client)
-        //{
-        //    string baseAddress = @"https://accounts.google.com/o/oauth2/auth";
-
-        //    string grant_type = "client_credentials";
-        //    string client_id = "REMOVED_CREDS";
-        //    string client_secret = "REMOVED_CREDS";
-
-        //    var responseType  = "code";
-        //    var scope = @"https://www.googleapis.com/auth/youtube";
-        //    var redirectUrl = @"http://localhost:8080";
-
-        //    var form = new Dictionary<string, string>
-        //            {
-        //                //{"grant_type", grant_type},
-        //                {"client_id", client_id},
-        //                //{"client_secret", client_secret},
-        //                {"response_type", responseType },
-        //                {"scope", scope},
-        //                {"acess-type", "offline"},
-        //                {"redirect_uri", redirectUrl}          
-        //            };
-
-        //    var tokenResponse = client.PostAsync(baseAddress, new FormUrlEncodedContent(form)).Result;
-        //    var jsonContent =  tokenResponse.Content.ReadAsStringAsync().Result;
-        //    var tok = JsonConvert.DeserializeObject<Token>(jsonContent);
-        //    return tok;
-        //}
-
-
-        //internal class Token
-        //{
-        //    [JsonProperty("access_token")]
-        //    public string AccessToken { get; set; }
-
-        //    [JsonProperty("token_type")]
-        //    public string TokenType { get; set; }
-
-        //    [JsonProperty("expires_in")]
-        //    public int ExpiresIn { get; set; }
-
-        //    [JsonProperty("refresh_token")]
-        //    public string RefreshToken { get; set; }
-        //}
     }
 }
