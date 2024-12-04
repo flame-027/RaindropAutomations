@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-namespace RaindropAutomations.models
+namespace RaindropAutomations.Models
 {
     public class RaindropSingleCollection
     {

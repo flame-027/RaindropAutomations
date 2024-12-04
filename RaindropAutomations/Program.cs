@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-using RaindropAutomations.models;
-using RaindropAutomations.tools;
-using RainDropAutomations.Youtube;
-using RainDropAutomations.Youtube.models;
-using System.Net.Mail;
+using RaindropAutomations.Models;
+using RaindropAutomations.Tools;
+using RainDropAutomations.Youtube.Models;
 using YoutubeAutomation;
 
 namespace RaindropAutomations
@@ -53,7 +51,7 @@ namespace RaindropAutomations
                                                                                         .Select(x => x.pureVideoUrl)
                                                                                         .ToList();
 
-            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistUrl, chromuimDataDirectory);
+            var videoUrls = youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistUrl, chromuimDataDirectory).Select(x => x.pureVideoUrl);
 
             var nonDuplicateVideoUrls = videoUrls.Where(x => !allNestedBookmarksAsLinkStrings.Contains(x)).ToList();
 
@@ -63,7 +61,7 @@ namespace RaindropAutomations
 
             var youtubeBookmarks = nonDuplicateVideoUrls.Select
                 (
-                   x => new Bookmark { Link = x.pureVideoUrl, Collection = collection, PleaseParse = new() }
+                   x => new Bookmark { Link = x, Collection = collection, PleaseParse = new() }
                 );
 
             var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();

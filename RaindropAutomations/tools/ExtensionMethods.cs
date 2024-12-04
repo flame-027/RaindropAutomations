@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RaindropAutomations.tools
+namespace RaindropAutomations.Tools
 {
     public static class ExtensionMethods
     {

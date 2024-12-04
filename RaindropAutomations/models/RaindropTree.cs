@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RaindropAutomations.models
+namespace RaindropAutomations.Models
 {
     public class RaindropTree
     {

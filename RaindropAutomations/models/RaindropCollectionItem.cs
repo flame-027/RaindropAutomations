@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RaindropAutomations.models
+namespace RaindropAutomations.Models
 {
     public class RaindropCollectionItem
     {

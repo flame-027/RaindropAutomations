@@ -1,9 +1,6 @@
 ﻿namespace YoutubeAutomation
 {
-    using Newtonsoft.Json;
-    using System.Text.Json;
     using System.Collections.Generic;
-    using System.Net.Http;
     using Google.Apis.Auth.OAuth2;
     using Google.Apis.Util.Store;
     using Google.Apis.YouTube.v3;
