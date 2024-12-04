@@ -42,8 +42,6 @@ namespace RaindropAutomations
                                                 .GetSection("Chromium")
                                                 .GetSection("DataDirectory").Value;
 
-            
-
             var raindropManager = new RaindropManager(config);
 
             //var test = raindropManager.GetRaindropCollection(42221693);
@@ -62,21 +60,17 @@ namespace RaindropAutomations
 
             var debuggingTest = nonDuplicateVideoUrls.Count;
             
-            var collection = new CollectionIdSaveModel { Id = saveCollectionId };
+            var targetCollection = new CollectionIdSaveModel { Id = saveCollectionId };
 
             var youtubeBookmarks = nonDuplicateVideoUrls.Select
                 (
-                   x => new BookmarkSaveModel { Link = x, Collection = collection, PleaseParse = new() }
-                );
+                   x => new BookmarkSaveModel { Link = x, Collection = targetCollection, PleaseParse = new() }
+                ).ToList();
 
-            var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
-
-            foreach (var bookmarksList in videoBookmarksInChuncks)
-            {
-                var bookmarksCollection = new MultiBookmarkSavePayload { Result = true, Bookmarks = bookmarksList };
-                raindropManager.CreateMultipleBookmarks(bookmarksCollection);
-            }
+            raindropManager.CreateMultipleBookmarks(youtubeBookmarks);
         }
+
+        
     }
 }
 

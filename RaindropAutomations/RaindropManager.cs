@@ -38,12 +38,20 @@ namespace RaindropAutomations
             var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrop", content).Result;
         }
 
-        public void CreateMultipleBookmarks(MultiBookmarkSavePayload bookmarksCollection)
+        public void CreateMultipleBookmarks(List<BookmarkSaveModel> bookmarks)
         {
-            string bookmarkJson = Newtonsoft.Json.JsonConvert.SerializeObject(bookmarksCollection);
-            HttpContent content = new StringContent(bookmarkJson, Encoding.UTF8, "application/json");
+            var BookmarkChuncks = bookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
 
-            var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrops", content).Result;
+            foreach (var bookmarkChunk in BookmarkChuncks)
+            {
+                var bookmarksPayload = new MultiBookmarkSavePayload { Result = true, Bookmarks = bookmarkChunk };
+
+                string bookmarkPayloadJson = Newtonsoft.Json.JsonConvert.SerializeObject(bookmarksPayload);
+                HttpContent content = new StringContent(bookmarkPayloadJson, Encoding.UTF8, "application/json");
+
+                var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrops", content).Result;
+                //TODO: need to create proper error / rate handling?
+            }         
         }
 
         public SingleCollectionPayload GetRaindropCollectionById(int collectionId)
