@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace RaindropAutomations.Models
 {
-    public class RaindropTree
+    public class RaindropCollectionTree
     {
-        public List<RaindropTreeNode> TopNodes { get; set; } = new();
+        public List<RaindropCollectionTreeNode> TopNodes { get; set; } = new();
 
         public List<long> AllIdsWithinTree { get; set; } = new();
     }
 
-    public class RaindropTreeNode
+    public class RaindropCollectionTreeNode
     {
         public long Id { get; set; }
 
         public string Name { get; set; }
 
-        public List<RaindropTreeNode> Children { get; set; } = new();
+        public List<RaindropCollectionTreeNode> Children { get; set; } = new();
     }
 }

@@ -89,7 +89,7 @@ namespace RaindropAutomations
             return resultModel;
         }
 
-        public RaindropTree GetDescendantCollectionsById(int parentCollectionId)
+        public RaindropCollectionTree GetDescendantCollectionsById(int parentCollectionId)
         {
             var allChildrenOnAccount = GetEveryChildCollectionOnAccount();
 
@@ -100,8 +100,8 @@ namespace RaindropAutomations
             //    GetMatchedChildren(child, allChildrenOnAccount);
             //}
 
-            var parentCollection = new RaindropTreeNode { Id = parentCollectionId };
-            var payload = new RaindropTree();
+            var parentCollection = new RaindropCollectionTreeNode { Id = parentCollectionId };
+            var payload = new RaindropCollectionTree();
 
             MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIdsWithinTree);
 
@@ -111,10 +111,10 @@ namespace RaindropAutomations
             return payload;
         }
 
-        private static void MatchChildrenAndSetToParentRecursively(RaindropCollections allChildrenOnAccount, RaindropTreeNode parent, List<long> masterIdList = null)
+        private static void MatchChildrenAndSetToParentRecursively(RaindropCollections allChildrenOnAccount, RaindropCollectionTreeNode parent, List<long> masterIdList = null)
         {
             var allPossibleChildren = allChildrenOnAccount.Items;
-            var children = allPossibleChildren.Where(x => x.Parent.Id == parent.Id).Select(x => new RaindropTreeNode { Id = x.Id, Name = x.Title }).ToList();
+            var children = allPossibleChildren.Where(x => x.Parent.Id == parent.Id).Select(x => new RaindropCollectionTreeNode { Id = x.Id, Name = x.Title }).ToList();
 
             parent.Children = children;
 
