@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RaindropAutomations.Models
+namespace RaindropAutomations.Models.Saving
 {
-    public class BookmarksCreationPayload
+    public class MultiBookmarkSavePayload
     {
         [JsonProperty("result")]
         public bool Result { get; set; }
 
         [JsonProperty("items")]
-        public List<Bookmark> Bookmarks { get; set; }
+        public List<BookmarkSaveModel> Bookmarks { get; set; }
     }
 }

@@ -2,14 +2,14 @@
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-namespace RaindropAutomations.Models
+namespace RaindropAutomations.Models.Fetching
 {
-    public class RaindropCollections
+    public class SingleCollectionPayload
     {
         [JsonPropertyName("result")]
         public bool Result { get; set; }
 
-        [JsonPropertyName("items")]
-        public List<RaindropCollectionItem> Items { get; set; }
+        [JsonPropertyName("item")]
+        public CollectionFetchModel Item { get; set; }
     }
 }

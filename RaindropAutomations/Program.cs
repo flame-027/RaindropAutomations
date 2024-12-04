@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using RaindropAutomations.Models;
+using RaindropAutomations.Models.Saving;
 using RaindropAutomations.Tools;
 using RainDropAutomations.Youtube.Models;
 using YoutubeAutomation;
@@ -62,18 +62,18 @@ namespace RaindropAutomations
 
             var debuggingTest = nonDuplicateVideoUrls.Count;
             
-            var collection = new Collection { Id = saveCollectionId };
+            var collection = new CollectionIdSaveModel { Id = saveCollectionId };
 
             var youtubeBookmarks = nonDuplicateVideoUrls.Select
                 (
-                   x => new Bookmark { Link = x, Collection = collection, PleaseParse = new() }
+                   x => new BookmarkSaveModel { Link = x, Collection = collection, PleaseParse = new() }
                 );
 
             var videoBookmarksInChuncks = youtubeBookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
 
             foreach (var bookmarksList in videoBookmarksInChuncks)
             {
-                var bookmarksCollection = new BookmarksCreationPayload { Result = true, Bookmarks = bookmarksList };
+                var bookmarksCollection = new MultiBookmarkSavePayload { Result = true, Bookmarks = bookmarksList };
                 raindropManager.CreateMultipleBookmarks(bookmarksCollection);
             }
         }

@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RaindropAutomations.Models
+namespace RaindropAutomations.Models.Fetching
 {
-    public class RaindropCollectionItem
+    public class CollectionFetchModel
     {
         [JsonPropertyName("_id")]
         public long Id { get; set; }
@@ -11,7 +11,7 @@ namespace RaindropAutomations.Models
         public string Title { get; set; }
 
         [JsonPropertyName("parent")]
-        public RaindropParentCollection Parent { get; set; }
+        public ParentCollectionModel Parent { get; set; }
 
         [JsonPropertyName("count")]
         public int Count { get; set; }
@@ -27,14 +27,5 @@ namespace RaindropAutomations.Models
 
         [JsonPropertyName("view")]
         public string View { get; set; }
-    }
-
-    public class RaindropParentCollection
-    {
-        [JsonPropertyName("$id")]
-        public long Id { get; set; }
-
-        [JsonPropertyName("$ref")]
-        public string Ref { get; set; }
     }
 }
