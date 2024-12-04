@@ -22,14 +22,18 @@ namespace RaindropAutomations
             var credentialsPath = googleApiConfig.GetSection("CredentialsPath").Value;
             var tokenPath = googleApiConfig.GetSection("TokenFilePath").Value;
 
-            var raindropCollectionId = int.Parse(config.GetFromRaindropConfig("WatchLaterOutputCollectionId").Value);
+            var saveCollectionId = int.Parse(config.GetFromRaindropConfig("VideosSaveInboxId").Value);
+            var checkParentCollectionId = int.Parse(config.GetFromRaindropConfig("VidoesCheckRootId").Value);
+
 
             var youtubeManager = new YoutubeManager(applicationName, credentialsPath, tokenPath);
-             
-            YoutubePlaylistToRaindrop(config, youtubeManager, raindropCollectionId);
+
+            var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
+
+            YoutubePlaylistToRaindrop(config, youtubeManager, playlistUrl, saveCollectionId, checkParentCollectionId);
         }
 
-        private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, int raindropCollectionId)
+        private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, string playlistUrl, int saveCollectionId, int checkParentCollectionId)
         {
             // for ViaApi version of method
             // var youtubePlaylistName = "dump-wl";
@@ -38,7 +42,7 @@ namespace RaindropAutomations
                                                 .GetSection("Chromium")
                                                 .GetSection("DataDirectory").Value;
 
-            var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
+            
 
             var raindropManager = new RaindropManager(config);
 
@@ -58,7 +62,7 @@ namespace RaindropAutomations
 
             var debuggingTest = nonDuplicateVideoUrls.Count;
             
-            var collection = new Collection { Id = raindropCollectionId };
+            var collection = new Collection { Id = saveCollectionId };
 
             var youtubeBookmarks = nonDuplicateVideoUrls.Select
                 (
