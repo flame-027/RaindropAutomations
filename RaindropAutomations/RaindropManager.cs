@@ -100,6 +100,7 @@ namespace RaindropAutomations
         }
 
         public RaindropCollectionTree GetDescendantCollectionsById(long parentCollectionId)
+        public RaindropCollectionForest GetDescendantCollectionsById(long parentCollectionId)
         {
             var allChildrenOnAccount = GetEveryChildCollectionOnAccount();
 
@@ -111,12 +112,12 @@ namespace RaindropAutomations
             //}
 
             var parentCollection = new RaindropCollectionTreeNode { Id = parentCollectionId };
-            var payload = new RaindropCollectionTree();
+            var payload = new RaindropCollectionForest();
 
-            MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIdsWithinTree);
+            MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIdsWithinForest);
 
             var descendants = parentCollection.Children;
-            payload.TopNodes.AddRange(descendants);
+            payload.TopLevelNodes.AddRange(descendants);
 
             return payload;
         }

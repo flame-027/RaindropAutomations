@@ -62,7 +62,7 @@ namespace RaindropAutomations.Tools
             if(includeParentSettings == SelfInclusionOptions.ExcludeSelf)
             {
                 var allDescendantCollectionsInParent = raindropManager.GetDescendantCollectionsById(parentCollectionId);
-                var allDescendantBookmarksInParent = raindropManager.GetAllBookmarksFromMultipleCollections(allDescendantCollectionsInParent.AllIdsWithinTree);
+                var allDescendantBookmarksInParent = raindropManager.GetAllBookmarksFromMultipleCollections(allDescendantCollectionsInParent.AllIdsWithinForest);
 
                 allBookmarksFromParent = allDescendantBookmarksInParent ?? new();
             }
