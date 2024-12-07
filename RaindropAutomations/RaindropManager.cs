@@ -128,17 +128,12 @@ namespace RaindropAutomations
         {
             var allChildrenOnAccount = GetEveryChildCollectionOnAccount();
 
-            //var firstGenerationList = allChildrenOnAccount.Items.Where(x => x.Parent.Id == collectionId)?.Select(x => new RaindropTreeNode { Id = x.Id, Name = x.Title }).ToList();
-
-            //foreach (var child in firstGenerationList)
-            //{
-            //    GetMatchedChildren(child, allChildrenOnAccount);
-            //}
-
             var parentCollection = new RaindropCollectionTreeNode { Id = parentCollectionId };
             var payload = new RaindropCollectionForest();
 
-            MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIdsWithinForest);
+            try { MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIdsWithinForest); }
+
+            catch (Exception) {throw;}
 
             var descendants = parentCollection.Children;
             payload.TopLevelNodes.AddRange(descendants);
