@@ -99,7 +99,31 @@ namespace RaindropAutomations
             return resultModel;
         }
 
-        public RaindropCollectionTree GetDescendantCollectionsById(long parentCollectionId)
+        public RaindropCollectionForest GetDescendantAndSelfCollectionsById(long parentCollectionId)
+        {
+            var descendantsForest = GetDescendantCollectionsById(parentCollectionId);
+
+            if (descendantsForest == null || descendantsForest.AllIdsWithinForest.Count <= 0)
+                return new();
+
+            //var descendants = descendantsForest.TopLevelNodes;
+            //descendantsForest.TopLevelNodes = new();
+
+            var url = $"{_apiBaseUrl}/collection{parentCollectionId}";
+
+            var response = _httpClient.GetAsync(url).Result;
+            var jsonResult = response.Content.ReadAsStringAsync().Result;
+
+            var parentModel = JsonSerializer.Deserialize<CollectionFetchModel>(jsonResult);
+            var parentNode = new RaindropCollectionTreeNode { Id = parentModel.Id, Children = descendantsForest.TopLevelNodes, Name = parentModel.Title };
+
+            descendantsForest.TopLevelNodes = [parentNode];
+            descendantsForest.AllIdsWithinForest.Insert(0, parentNode.Id);
+
+            return descendantsForest;
+        }
+
+
         public RaindropCollectionForest GetDescendantCollectionsById(long parentCollectionId)
         {
             var allChildrenOnAccount = GetEveryChildCollectionOnAccount();
