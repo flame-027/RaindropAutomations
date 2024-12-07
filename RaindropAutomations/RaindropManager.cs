@@ -122,17 +122,23 @@ namespace RaindropAutomations
             return payload;
         }
 
-        private static void MatchChildrenAndSetToParentRecursively(MultiCollectionPayload allChildrenOnAccount, RaindropCollectionTreeNode parent, List<long> masterIdList = null)
+        private static void MatchChildrenAndSetToParentRecursively(MultiCollectionPayload allPossibleChildrenPayload, RaindropCollectionTreeNode currentParent, List<long> masterIdList)
         {
-            var allPossibleChildren = allChildrenOnAccount.Items;
-            var children = allPossibleChildren.Where(x => x.Parent.Id == parent.Id).Select(x => new RaindropCollectionTreeNode { Id = x.Id, Name = x.Title }).ToList();
+            ExceptionHandler.ThrowIfAnyNull(nameof(MatchChildrenAndSetToParentRecursively),
+                (allPossibleChildrenPayload, nameof(allPossibleChildrenPayload)),
+                (currentParent, nameof(currentParent)),
+                (masterIdList, nameof(masterIdList))
+                );
 
-            parent.Children = children;
+            var allPossibleChildren = allPossibleChildrenPayload.Items;
+            var children = allPossibleChildren.Where(x => x.Parent.Id == currentParent.Id).Select(x => new RaindropCollectionTreeNode { Id = x.Id, Name = x.Title }).ToList();
+
+            currentParent.Children = children;
 
             foreach(var child in children)
             {
                 masterIdList?.Add(child.Id);
-                MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, child, masterIdList);
+                MatchChildrenAndSetToParentRecursively(allPossibleChildrenPayload, child, masterIdList);
             }
         }
 
