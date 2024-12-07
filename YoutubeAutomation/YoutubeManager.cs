@@ -10,6 +10,7 @@
     using System.IO;
     using Microsoft.Playwright;
     using RainDropAutomations.Youtube.Models;
+    using Microsoft.Extensions.Configuration;
 
     public class YoutubeManager
     {
@@ -17,12 +18,20 @@
         private readonly string _applicationName;
         private readonly string _credentialsRetriveFilePath;
         private readonly string _tokenRetriveAndSaveFilePath;
+        private readonly IConfiguration _config;
+        private readonly string _chromuimDataDirectory;
 
-        public YoutubeManager(string applicationName, string credentialsRetriveFilePath, string tokenRetriveAndSaveFilePath)
+
+        public YoutubeManager(IConfiguration iconfig, string applicationName, string credentialsRetriveFilePath, string tokenRetriveAndSaveFilePath)
         {
+            _config = iconfig;
             _applicationName = applicationName;
             _credentialsRetriveFilePath = credentialsRetriveFilePath;
             _tokenRetriveAndSaveFilePath = tokenRetriveAndSaveFilePath;
+
+            _chromuimDataDirectory = _config.GetSection("Playwright")
+                                                .GetSection("Chromium")
+                                                .GetSection("DataDirectory").Value;
 
             var scopeList = new List<string>()
             {
@@ -33,7 +42,7 @@
             _userToken?.RefreshToken();
         }
 
-        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylistViaAccountApi(string playlistName)
+        public List<UrlModel> GetVideoUrlsFromPlaylistViaAccountApi(string playlistName)
         {
             _userToken.RefreshToken();
 
@@ -43,7 +52,7 @@
                 ApplicationName = _applicationName
             });
 
-            var playlistVideosModels = new List<YtVideoUrlModel>();
+            var playlistVideosModels = new List<UrlModel>();
             var allPlaylists = GetMyPlaylists(youtubeService);
 
             if (allPlaylists.Count > 0)
@@ -54,7 +63,7 @@
                     throw new InvalidOperationException("Did not find a playlist with that name");
 
                 var playlistVideos = GetVideosFromPlaylist(youtubeService, selectedPlaylist.Id);
-                playlistVideosModels = playlistVideos.Select(x => new YtVideoUrlModel { rawCapturedVideoUrl = $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}" }).ToList();
+                playlistVideosModels = playlistVideos.Select(x => new UrlModel { rawCapturedUrl = $"https://www.youtube.com/watch?v={x.Snippet.ResourceId.VideoId}" }).ToList();
             }
             else
             {
@@ -65,12 +74,10 @@
         }
 
 
-        public List<YtVideoUrlModel> GetVideoUrlsFromPlaylistViaScrapping(string playlistUrl, string chromuimDataDirectoryPath)
+        public List<UrlModel> GetVideoUrlsFromPlaylistViaScrapping(string playlistUrl)
         {
-            var browserDataDirPath = chromuimDataDirectoryPath;
-
             var playwright = Playwright.CreateAsync().Result;
-            var browser = playwright.Chromium.LaunchPersistentContextAsync(browserDataDirPath, new BrowserTypeLaunchPersistentContextOptions
+            var browser = playwright.Chromium.LaunchPersistentContextAsync(_chromuimDataDirectory, new BrowserTypeLaunchPersistentContextOptions
             {
                 Headless = false, //
                 Args = ["--start-maximized", /*"--disable-blink-features=AutomationControlled"*/],
@@ -116,7 +123,7 @@
             page.WaitForTimeoutAsync(3000);
 
             var elements =  page.QuerySelectorAllAsync("#video-title").Result;
-            var videoLinks = new List<YtVideoUrlModel>();
+            var videoLinks = new List<UrlModel>();
 
             foreach (var element in elements)
             {
@@ -124,7 +131,7 @@
 
                 if (href != null)
                 {
-                    var video = new YtVideoUrlModel { rawCapturedVideoUrl = href };
+                    var video = new UrlModel { rawCapturedUrl = href };
                     videoLinks.Add(video);
                 }
             }

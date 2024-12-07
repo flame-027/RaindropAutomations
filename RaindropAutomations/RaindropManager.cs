@@ -16,11 +16,11 @@ namespace RaindropAutomations
         private readonly string _apiToken;
         private readonly string _apiBaseUrl;
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration _config;
 
         public RaindropManager(IConfiguration config)
         {
-            _configuration = config;
+            _config = config;
 
             _apiToken = config.GetFromRaindropConfig("ApiToken").Value ?? string.Empty;
             _apiBaseUrl = config.GetFromRaindropConfig("ApiBaseUrl").Value ?? string.Empty;
@@ -54,7 +54,7 @@ namespace RaindropAutomations
             }         
         }
 
-        public SingleCollectionPayload GetRaindropCollectionById(int collectionId)
+        public SingleCollectionPayload GetRaindropCollectionById(long collectionId)
         {
             var response = _httpClient.GetAsync($"https://api.raindrop.io/rest/v1/collection/{collectionId}").Result;
 
@@ -99,7 +99,7 @@ namespace RaindropAutomations
             return resultModel;
         }
 
-        public RaindropCollectionTree GetDescendantCollectionsById(int parentCollectionId)
+        public RaindropCollectionTree GetDescendantCollectionsById(long parentCollectionId)
         {
             var allChildrenOnAccount = GetEveryChildCollectionOnAccount();
 
@@ -139,17 +139,17 @@ namespace RaindropAutomations
         {
             var allBookmarks = new List<BookmarkFetchModel>();
             var doneCollectionsCount = 0;
+            var maxPerPage = 50;
+
 
             foreach (var id in collectionIds)
             {
                 var currentPageIndex = 0;
-                var maxPerPage = 50;
                 var hasMorePages = false;
 
                 do
                 {
                     var url = $"https://api.raindrop.io/rest/v1/raindrops/{id}?perpage={maxPerPage}&page={currentPageIndex}";
-
                     HttpResponseMessage response = null;
 
                     while (true)
@@ -165,6 +165,7 @@ namespace RaindropAutomations
                                     : 5;
 
                                 Console.WriteLine($"Rate limit hit. Retrying after {retryAfter} seconds...");
+
                                 Thread.Sleep(retryAfter * 1000);
                                 continue; 
                             }
