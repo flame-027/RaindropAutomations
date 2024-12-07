@@ -36,11 +36,11 @@ namespace RaindropAutomations
 
                 var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
 
-                YoutubePlaylistToRaindrop(config, youtubeManager, raindropManager, playlistUrl, saveCollectionId, checkParentCollectionId);
+                YoutubePlaylistToRaindrop(youtubeManager, raindropManager, playlistUrl, saveCollectionId, checkParentCollectionId);
             }
         }
 
-        private static void YoutubePlaylistToRaindrop(IConfiguration config, YoutubeManager youtubeManager, RaindropManager raindropManager, string playlistUrl, int saveCollectionId, int checkParentCollectionId)
+        private static void YoutubePlaylistToRaindrop(YoutubeManager youtubeManager, RaindropManager raindropManager, string playlistUrl, int saveCollectionId, int checkParentCollectionId)
         {
             // for ViaApi version of GetVideos method
             // var youtubePlaylistName = "dump-wl";
