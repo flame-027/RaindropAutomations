@@ -26,7 +26,7 @@ namespace RaindropAutomations
             var tokenPath = googleApiConfig.GetSection("TokenFilePath").Value;
 
 
-            if(true)
+            if (true)
             {
                 var saveCollectionId = int.Parse(config.GetFromRaindropConfig("VideosSaveInboxId").Value);
                 var checkParentCollectionId = int.Parse(config.GetFromRaindropConfig("VidoesCheckRootId").Value);
