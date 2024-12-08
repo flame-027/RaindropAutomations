@@ -106,15 +106,14 @@ namespace RaindropAutomations
             if (descendantsForest == null || descendantsForest.AllIdsWithinForest.Count <= 0)
                 return new();
 
-            //var descendants = descendantsForest.TopLevelNodes;
-            //descendantsForest.TopLevelNodes = new();
+            var url = $"{_apiBaseUrl}/collection/{parentCollectionId}";
 
-            var url = $"{_apiBaseUrl}/collection{parentCollectionId}";
+            var parentResponse = _httpClient.GetAsync(url).Result;
+            var parentJson = parentResponse.Content.ReadAsStringAsync().Result;
 
-            var response = _httpClient.GetAsync(url).Result;
-            var jsonResult = response.Content.ReadAsStringAsync().Result;
+            var parentPayload = JsonSerializer.Deserialize<SingleCollectionPayload>(parentJson);
+            var parentModel = parentPayload.Item;
 
-            var parentModel = JsonSerializer.Deserialize<CollectionFetchModel>(jsonResult);
             var parentNode = new RaindropCollectionTreeNode { Id = parentModel.Id, Children = descendantsForest.TopLevelNodes, Name = parentModel.Title };
 
             descendantsForest.TopLevelNodes = [parentNode];
