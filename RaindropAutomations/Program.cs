@@ -54,7 +54,7 @@ namespace RaindropAutomations
                    x => new BookmarkSaveModel { Link = x, Collection = targetCollection, PleaseParse = new() }
                 ).ToList();
 
-            videosAsBookmarks.RemoveMatchesFromDescendants(checkParentCollectionId, SelfInclusionOptions.ExcludeSelf, UrlOptions.UrlAndFirstParamOnly);
+            videosAsBookmarks.RemoveMatchesFromDescendants(checkParentCollectionId, SelfInclusionOptions.IncludeSelf, UrlOptions.UrlAndFirstParamOnly);
 
             raindropManager.CreateMultipleBookmarks(videosAsBookmarks);
         }
