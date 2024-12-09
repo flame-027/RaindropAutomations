@@ -10,6 +10,6 @@ namespace RaindropAutomations.Models.Fetching
         public bool Result { get; set; }
 
         [JsonPropertyName("items")]
-        public List<CollectionFetchModel> Items { get; set; }
+        public List<CollectionFetchModel> Items { get; set; } = [];
     }
 }

@@ -38,6 +38,7 @@ namespace RaindropAutomations
             var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrop", content).Result;
         }
 
+
         public void CreateMultipleBookmarks(List<BookmarkSaveModel> bookmarks)
         {
             var BookmarkChuncks = bookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
@@ -53,6 +54,7 @@ namespace RaindropAutomations
                 //TODO: need to create proper error / rate handling?
             }         
         }
+
 
         public SingleCollectionPayload GetRaindropCollectionById(long collectionId)
         {
@@ -83,6 +85,7 @@ namespace RaindropAutomations
 
         }
 
+
         public MultiCollectionPayload GetEveryChildCollectionOnAccount()
         {
             var response = _httpClient.GetAsync($"https://api.raindrop.io/rest/v1/collections/childrens").Result;
@@ -98,6 +101,7 @@ namespace RaindropAutomations
 
             return resultModel;
         }
+
 
         public RaindropCollectionForest GetDescendantAndSelfCollectionsById(long parentCollectionId)
         {
@@ -140,9 +144,11 @@ namespace RaindropAutomations
             return payload;
         }
 
+
         private static void MatchChildrenAndSetToParentRecursively(MultiCollectionPayload allPossibleChildrenPayload, RaindropCollectionTreeNode currentParent, List<long> masterIdList)
         {
-            ExceptionHandler.ThrowIfAnyNull(nameof(MatchChildrenAndSetToParentRecursively),
+            ExceptionHandler.ThrowIfAnyNull(
+                nameof(MatchChildrenAndSetToParentRecursively),
                 (allPossibleChildrenPayload, nameof(allPossibleChildrenPayload)),
                 (currentParent, nameof(currentParent)),
                 (masterIdList, nameof(masterIdList))
@@ -160,7 +166,8 @@ namespace RaindropAutomations
             }
         }
 
-        public List<BookmarkFetchModel> GetAllBookmarksFromMultipleCollections(List<long> collectionIds)
+
+        public List<BookmarkFetchModel> GetBookmarksFromMultipleCollections(List<long> collectionIds)
         {
             var allBookmarks = new List<BookmarkFetchModel>();
             var doneCollectionsCount = 0;
@@ -169,19 +176,53 @@ namespace RaindropAutomations
 
             foreach (var id in collectionIds)
             {
+                var collectionBookmarks = GetBookmarksFromSingleCollection(id);
+                allBookmarks.AddRange(collectionBookmarks);
+
+                doneCollectionsCount++;
+            }
+
+            return allBookmarks;
+        }
+
+
+        public List<BookmarkFetchModel> GetBookmarksFromSingleCollection(long collectionId)
+        {
+            var maxPerPage = 50;
                 var currentPageIndex = 0;
-                var hasMorePages = false;
+            bool hasMorePages;
+
+            var allBookmarks = new List<BookmarkFetchModel>();
 
                 do
                 {
-                    var url = $"https://api.raindrop.io/rest/v1/raindrops/{id}?perpage={maxPerPage}&page={currentPageIndex}";
-                    HttpResponseMessage response = null;
+                var bookmarksPage = GetBookmarksByPage(collectionId, maxPerPage, currentPageIndex);
+
+                if (bookmarksPage.Items != null && bookmarksPage.Items.Count > 0)
+                {
+                    allBookmarks.AddRange(bookmarksPage.Items);
+                    hasMorePages = bookmarksPage.Items.Count == maxPerPage;
+                }   
+                else
+                    hasMorePages = false;
+
+                currentPageIndex++;
+
+            } while (hasMorePages);
+
+            return allBookmarks;
+        }
+
+
+        private BookmarksQueryResponse GetBookmarksByPage(long collectionId, int maxPerPage, int pageIndex)
+        {
+            var requestUrl = $"{_apiBaseUrl}/raindrops/{collectionId}?perpage={maxPerPage}&page={pageIndex}";
 
                     while (true)
                     {
                         try
                         {
-                            response = _httpClient.GetAsync(url).Result;
+                    var response = _httpClient.GetAsync(requestUrl).Result;
 
                             if (response.StatusCode == (HttpStatusCode)429)
                             {
@@ -196,7 +237,11 @@ namespace RaindropAutomations
                             }
 
                             response.EnsureSuccessStatusCode();
-                            break;
+
+                    var pageResponseJson = response.Content.ReadAsStringAsync().Result;
+                    var pageResponseModel = JsonSerializer.Deserialize<BookmarksQueryResponse>(pageResponseJson);
+
+                    return pageResponseModel;
                         }
                         catch (Exception ex)
                         {
@@ -204,6 +249,7 @@ namespace RaindropAutomations
                             throw;
                         }
                     }
+        }
 
                     var pageResponseJson = response.Content.ReadAsStringAsync().Result;
                     var pageResponse = JsonSerializer.Deserialize<BookmarksQueryResponse>(pageResponseJson);

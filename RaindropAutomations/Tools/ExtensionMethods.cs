@@ -63,7 +63,7 @@ namespace RaindropAutomations.Tools
             if(includeParentSettings == SelfInclusionOptions.ExcludeSelf)
             {
                 var descendantCollections = raindropManager.GetDescendantCollectionsById(parentCollectionId);
-                var descendantBookmarks = raindropManager.GetAllBookmarksFromMultipleCollections(descendantCollections.AllIdsWithinForest);
+                var descendantBookmarks = raindropManager.GetBookmarksFromMultipleCollections(descendantCollections.AllIdsWithinForest);
 
                 allMatchingBookmarks = descendantBookmarks ?? [];
             }
@@ -71,7 +71,7 @@ namespace RaindropAutomations.Tools
             if(includeParentSettings == SelfInclusionOptions.IncludeSelf)
             {
                 var parentAndDescendantCollections = raindropManager.GetDescendantAndSelfCollectionsById(parentCollectionId);
-                var allBookmarksInParentAndDescendants = raindropManager.GetAllBookmarksFromMultipleCollections(parentAndDescendantCollections.AllIdsWithinForest);
+                var allBookmarksInParentAndDescendants = raindropManager.GetBookmarksFromMultipleCollections(parentAndDescendantCollections.AllIdsWithinForest);
 
                 allMatchingBookmarks = allBookmarksInParentAndDescendants ?? [];
             }
