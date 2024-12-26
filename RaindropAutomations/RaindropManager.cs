@@ -170,68 +170,82 @@ namespace RaindropAutomations
         {
             var allBookmarks = new List<BookmarkFetchModel>();
             var doneCollectionsCount = 0;
-            var maxPerPage = 50;
-
 
             foreach (var id in collectionIds)
             {
-                var currentPageIndex = 0;
-                var hasMorePages = false;
-
-                do
-                {
-                    var url = $"https://api.raindrop.io/rest/v1/raindrops/{id}?perpage={maxPerPage}&page={currentPageIndex}";
-                    HttpResponseMessage response = null;
-
-                    while (true)
-                    {
-                        try
-                        {
-                            response = _httpClient.GetAsync(url).Result;
-
-                            if (response.StatusCode == (HttpStatusCode)429)
-                            {
-                                var retryAfter = response.Headers.Contains("Retry-After")
-                                    ? int.Parse(response.Headers.GetValues("Retry-After").First())
-                                    : 5;
-
-                                Console.WriteLine($"Rate limit hit. Retrying after {retryAfter} seconds...");
-
-                                Thread.Sleep(retryAfter * 1000);
-                                continue; 
-                            }
-
-                            response.EnsureSuccessStatusCode();
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error: {ex.Message}");
-                            throw;
-                        }
-                    }
-
-                    var pageResponseJson = response.Content.ReadAsStringAsync().Result;
-                    var pageResponse = JsonSerializer.Deserialize<BookmarksQueryResponse>(pageResponseJson);
-
-                    if (pageResponse.Items != null)
-                    {
-                        allBookmarks.AddRange(pageResponse.Items);
-                        hasMorePages = pageResponse.Items.Count == maxPerPage;
-                    }
-                    else
-                    {
-                        hasMorePages = false;
-                    }
-
-                    currentPageIndex++;
-
-                } while (hasMorePages);
+                var collectionBookmarks = GetBookmarksFromSingleCollection(id);
+                allBookmarks.AddRange(collectionBookmarks);
 
                 doneCollectionsCount++;
             }
 
             return allBookmarks;
+        }
+
+
+        public List<BookmarkFetchModel> GetBookmarksFromSingleCollection(long collectionId)
+        {
+            var maxPerPage = 50;
+            var currentPageIndex = 0;
+            bool hasMorePages;
+
+            var allBookmarks = new List<BookmarkFetchModel>();
+
+            do
+            {
+                var bookmarksPage = GetBookmarksByPage(collectionId, maxPerPage, currentPageIndex);
+
+                if (bookmarksPage.Items != null && bookmarksPage.Items.Count > 0)
+                {
+                    allBookmarks.AddRange(bookmarksPage.Items);
+                    hasMorePages = bookmarksPage.Items.Count == maxPerPage;
+                }
+                else
+                    hasMorePages = false;
+
+                currentPageIndex++;
+
+            } while (hasMorePages);
+
+            return allBookmarks;
+        }
+
+
+        private BookmarksQueryResponse GetBookmarksByPage(long collectionId, int maxPerPage, int pageIndex)
+        {
+            var requestUrl = $"{_apiBaseUrl}/raindrops/{collectionId}?perpage={maxPerPage}&page={pageIndex}";
+
+            while (true)
+            {
+                try
+                {
+                    var response = _httpClient.GetAsync(requestUrl).Result;
+
+                    if (response.StatusCode == (HttpStatusCode)429)
+                    {
+                        var retryAfter = response.Headers.Contains("Retry-After")
+                                                            ? int.Parse(response.Headers.GetValues("Retry-After").First())
+                                                            : 5;
+
+                        Console.WriteLine($"Rate limit hit. Retrying after {retryAfter} seconds...");
+
+                        Thread.Sleep(retryAfter * 1000);
+                        continue;
+                    }
+
+                    response.EnsureSuccessStatusCode();
+
+                    var pageResponseJson = response.Content.ReadAsStringAsync().Result;
+                    var pageResponseModel = JsonSerializer.Deserialize<BookmarksQueryResponse>(pageResponseJson);
+
+                    return pageResponseModel;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    throw;
+                }
+            }
         }
 
 
