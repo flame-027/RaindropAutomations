@@ -38,6 +38,7 @@ namespace RaindropAutomations
             var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrop", content).Result;
         }
 
+
         public void CreateMultipleBookmarks(List<BookmarkSaveModel> bookmarks)
         {
             var BookmarkChuncks = bookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
@@ -53,6 +54,7 @@ namespace RaindropAutomations
                 //TODO: need to create proper error / rate handling?
             }         
         }
+
 
         public SingleCollectionPayload GetRaindropCollectionById(long collectionId)
         {
@@ -83,6 +85,7 @@ namespace RaindropAutomations
 
         }
 
+
         public MultiCollectionPayload GetEveryChildCollectionOnAccount()
         {
             var response = _httpClient.GetAsync($"https://api.raindrop.io/rest/v1/collections/childrens").Result;
@@ -98,6 +101,7 @@ namespace RaindropAutomations
 
             return resultModel;
         }
+
 
         public RaindropCollectionForest GetDescendantAndSelfCollectionsById(long parentCollectionId)
         {
@@ -140,6 +144,7 @@ namespace RaindropAutomations
             return payload;
         }
 
+
         private static void MatchChildrenAndSetToParentRecursively(MultiCollectionPayload allPossibleChildrenPayload, RaindropCollectionTreeNode currentParent, List<long> masterIdList)
         {
             ExceptionHandler.ThrowIfAnyNull(nameof(MatchChildrenAndSetToParentRecursively),
@@ -159,6 +164,7 @@ namespace RaindropAutomations
                 MatchChildrenAndSetToParentRecursively(allPossibleChildrenPayload, child, masterIdList);
             }
         }
+
 
         public List<BookmarkFetchModel> GetAllBookmarksFromMultipleCollections(List<long> collectionIds)
         {
@@ -226,6 +232,23 @@ namespace RaindropAutomations
             }
 
             return allBookmarks;
+        }
+
+
+        public void UpdateMultipleBookmarks(long sourceCollectionId, long destinationCollectionId, List<long> specifiedBookmarkIds = null)
+        {
+            var requestUrl = $"{_apiBaseUrl}/raindrops/{sourceCollectionId}";
+
+            var model = new MultiBookmarkModifyModel
+            {
+                Collection = new CollectionIdSaveModel { Id = destinationCollectionId },
+                Ids = specifiedBookmarkIds
+            };
+
+            string requestJson = JsonSerializer.Serialize(model);
+            HttpContent content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var response = _httpClient.PutAsync(requestUrl, content).Result;
         }
 
     }
