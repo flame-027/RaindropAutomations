@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace RaindropAutomations.Models.Saving
 {
     public class CollectionIdSaveModel
     {
-        [JsonProperty("$id")]
-        public int Id { get; set; }
+        [JsonPropertyName("$id")]
+        public long Id { get; set; }
     }
 
 }

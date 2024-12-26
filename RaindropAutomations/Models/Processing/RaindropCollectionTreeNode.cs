@@ -6,6 +6,6 @@
 
         public string Name { get; set; }
 
-        public List<RaindropCollectionTreeNode> Children { get; set; } = new();
+        public List<RaindropCollectionTreeNode> Children { get; set; } = [];
     }
 }

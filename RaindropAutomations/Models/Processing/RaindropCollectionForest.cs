@@ -8,8 +8,8 @@ namespace RaindropAutomations.Models.Processing
 {
     public class RaindropCollectionForest
     {
-        public List<RaindropCollectionTreeNode> TopLevelNodes { get; set; } = [];
-
         public List<long> AllIdsWithinForest { get; set; } = [];
+
+        public List<RaindropCollectionTreeNode> TopLevelNodes { get; set; } = [];
     }
 }
