@@ -6,7 +6,7 @@ namespace RaindropAutomations.Services
 {
     public class RaindropOperationsService
     {
-        private readonly RaindropApiWrapService _apiService;
+        public readonly RaindropApiWrapService _apiService;
 
         public RaindropOperationsService(RaindropApiWrapService apiService)
         {
