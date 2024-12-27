@@ -14,12 +14,12 @@ namespace RaindropAutomations
     public partial class RaindropService
     {
         private readonly IConfiguration _config;
+        private readonly IRaindropRepository _repo;
 
-        public RaindropService(IConfiguration config)
+        public RaindropService(IConfiguration config, IRaindropRepository repository)
         {
             _config = config;
-
-
+            _repo = repository;
         }
 
         public RaindropCollectionForest GetDescendantAndSelfCollectionsById(long parentCollectionId)
@@ -29,13 +29,8 @@ namespace RaindropAutomations
             if (descendantsForest == null || descendantsForest.AllIdsWithinForest.Count <= 0)
                 return new();
 
-            var url = $"{_apiBaseUrl}/collection/{parentCollectionId}";
-
-            var parentResponse = _httpClient.GetAsync(url).Result;
-            var parentJson = parentResponse.Content.ReadAsStringAsync().Result;
-
-            var parentPayload = JsonSerializer.Deserialize<SingleCollectionPayload>(parentJson);
-            var parentModel = parentPayload.Item;
+            var parentResponsePayload = _repo.GetCollectionById(parentCollectionId);
+            var parentModel = parentResponsePayload.Item;
 
             var parentNode = new RaindropCollectionTreeNode { Id = parentModel.Id, Children = descendantsForest.TopLevelNodes, Name = parentModel.Title };
 
@@ -48,7 +43,7 @@ namespace RaindropAutomations
 
         public RaindropCollectionForest GetDescendantCollectionsById(long parentCollectionId)
         {
-            var allChildrenOnAccount = GetEveryChildCollectionOnAccount();
+            var allChildrenOnAccount = _repo.GetEveryChildCollectionOnAccount();
 
             var parentCollection = new RaindropCollectionTreeNode { Id = parentCollectionId };
             var payload = new RaindropCollectionForest();
@@ -112,7 +107,7 @@ namespace RaindropAutomations
 
             do
             {
-                var bookmarksPage = GetBookmarksByPage(collectionId, maxPerPage, currentPageIndex);
+                var bookmarksPage = _repo.GetCollectionBookmarksById(collectionId, maxPerPage, currentPageIndex);
 
                 if (bookmarksPage.Items != null && bookmarksPage.Items.Count > 0)
                 {

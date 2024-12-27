@@ -56,7 +56,7 @@ namespace RaindropAutomations.Tools
         public static void RemoveMatchesFromDescendants(this List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? MatchOptions = null)
         {
             // FINDING MATCHES
-            var raindropManager = new RaindropManager(GlobalConfig.Config);
+            var raindropManager = new RaindropService(GlobalConfig.Config);
 
             var allMatchingBookmarks = new List<BookmarkFetchModel>();
 
