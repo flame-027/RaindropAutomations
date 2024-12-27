@@ -37,7 +37,7 @@ namespace RaindropAutomations
 
         public SingleCollectionPayload GetCollectionById(long collectionId)
         {
-            var response = _httpClient.GetAsync($"{_apiBaseUrl}/{collectionId}").Result;
+            var response = _httpClient.GetAsync($"{_apiBaseUrl}/collection/{collectionId}").Result;
 
             response.EnsureSuccessStatusCode();
 
