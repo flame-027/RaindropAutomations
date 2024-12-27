@@ -5,6 +5,7 @@ using RaindropAutomations.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -48,7 +49,7 @@ namespace RaindropAutomations
 
         }
 
-        private BookmarksQueryResponse GetBookmarksByPage(long collectionId, int maxPerPage, int pageIndex)
+        public BookmarksQueryResponse GetCollectionBookmarksById(long collectionId, int maxPerPage, int pageIndex)
         {
             var requestUrl = $"{_apiBaseUrl}/raindrops/{collectionId}?perpage={maxPerPage}&page={pageIndex}";
 
