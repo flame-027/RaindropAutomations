@@ -1,26 +1,14 @@
-﻿using Microsoft.Extensions.Configuration;
-using RaindropAutomations.Models.Fetching;
-using RaindropAutomations.Models.Processing;
-using RaindropAutomations.Models.Saving;
-using RaindropAutomations.Tools;
-using System.Net;
-using System.Net.Http.Headers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Text.Json;
-//using Newtonsoft.Json;
+using System.Threading.Tasks;
 
-namespace RaindropAutomations
+namespace RaindropAutomations.Services
 {
-    public partial class RaindropService
-    {
-        private readonly IConfiguration _config;
-        private readonly IRaindropRepository _repo;
-
-        public RaindropService(IConfiguration config, IRaindropRepository repository)
-        {
-            _config = config;
-            _repo = repository;
-        }
+	public class RaindropOperationsService
+	{
+        public RaindropOperationsService() { }
 
         public RaindropCollectionForest GetDescendantAndSelfCollectionsById(long parentCollectionId)
         {
@@ -50,7 +38,7 @@ namespace RaindropAutomations
 
             try { MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIdsWithinForest); }
 
-            catch (Exception) {throw;}
+            catch (Exception) { throw; }
 
             var descendants = parentCollection.Children;
             payload.TopLevelNodes.AddRange(descendants);
@@ -72,7 +60,7 @@ namespace RaindropAutomations
 
             currentParent.Children = children;
 
-            foreach(var child in children)
+            foreach (var child in children)
             {
                 masterIdList?.Add(child.Id);
                 MatchChildrenAndSetToParentRecursively(allPossibleChildrenPayload, child, masterIdList);
@@ -95,7 +83,6 @@ namespace RaindropAutomations
 
             return allBookmarks;
         }
-
 
         public List<BookmarkFetchModel> GetBookmarksFromSingleCollection(long collectionId)
         {
@@ -123,6 +110,6 @@ namespace RaindropAutomations
 
             return allBookmarks;
         }
-    }
 
+    }
 }
