@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RaindropAutomations.Models.Fetching;
+using RaindropAutomations.Models.Processing;
+using RaindropAutomations.Tools;
 
 namespace RaindropAutomations.Services
 {
-	public class RaindropOperationsService
-	{
-        public RaindropOperationsService() { }
+    public class RaindropOperationsService
+    {
+        private readonly RaindropApiWrapService _apiService;
+
+        public RaindropOperationsService(RaindropApiWrapService apiService)
+        {
+            _apiService = apiService;
+        }
 
         public RaindropCollectionForest GetDescendantAndSelfCollectionsById(long parentCollectionId)
         {
@@ -17,7 +20,7 @@ namespace RaindropAutomations.Services
             if (descendantsForest == null || descendantsForest.AllIdsWithinForest.Count <= 0)
                 return new();
 
-            var parentResponsePayload = _repo.GetCollectionById(parentCollectionId);
+            var parentResponsePayload = _apiService.GetCollectionById(parentCollectionId);
             var parentModel = parentResponsePayload.Item;
 
             var parentNode = new RaindropCollectionTreeNode { Id = parentModel.Id, Children = descendantsForest.TopLevelNodes, Name = parentModel.Title };
@@ -31,7 +34,7 @@ namespace RaindropAutomations.Services
 
         public RaindropCollectionForest GetDescendantCollectionsById(long parentCollectionId)
         {
-            var allChildrenOnAccount = _repo.GetEveryChildCollectionOnAccount();
+            var allChildrenOnAccount = _apiService.GetEveryChildCollectionOnAccount();
 
             var parentCollection = new RaindropCollectionTreeNode { Id = parentCollectionId };
             var payload = new RaindropCollectionForest();
@@ -84,6 +87,7 @@ namespace RaindropAutomations.Services
             return allBookmarks;
         }
 
+
         public List<BookmarkFetchModel> GetBookmarksFromSingleCollection(long collectionId)
         {
             var maxPerPage = 50;
@@ -94,7 +98,7 @@ namespace RaindropAutomations.Services
 
             do
             {
-                var bookmarksPage = _repo.GetCollectionBookmarksById(collectionId, maxPerPage, currentPageIndex);
+                var bookmarksPage = _apiService.GetCollectionBookmarksById(collectionId, maxPerPage, currentPageIndex);
 
                 if (bookmarksPage.Items != null && bookmarksPage.Items.Count > 0)
                 {
