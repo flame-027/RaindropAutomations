@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using RaindropAutomations.Models.Saving;
 using RaindropAutomations.Options;
+using RaindropAutomations.Services;
 using RaindropAutomations.Tools;
 using RainDropAutomations.Youtube.Models;
 using YoutubeAutomation;
@@ -32,15 +33,15 @@ namespace RaindropAutomations
                 var checkParentCollectionId = int.Parse(config.GetFromRaindropConfig("VidoesCheckRootId").Value);
 
                 var youtubeManager = new YoutubeManager(config, applicationName, credentialsPath, tokenPath);
-                var raindropManager = new RaindropManager(config);
+                var raindropApiService = new RaindropApiWrapService(new RaindropRepository(config));
 
                 var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
 
-                YoutubePlaylistToRaindrop(youtubeManager, raindropManager, playlistUrl, saveCollectionId, checkParentCollectionId);
+                YoutubePlaylistToRaindrop(youtubeManager, raindropApiService, playlistUrl, saveCollectionId, checkParentCollectionId);
             }
         }
 
-        private static void YoutubePlaylistToRaindrop(YoutubeManager youtubeManager, RaindropManager raindropManager, string playlistUrl, int saveCollectionId, int checkParentCollectionId)
+        private static void YoutubePlaylistToRaindrop(YoutubeManager youtubeManager, RaindropApiWrapService raindropApiService, string playlistUrl, int saveCollectionId, int checkParentCollectionId)
         {
             // for ViaApi version of GetVideos method
             // var youtubePlaylistName = "dump-wl";
@@ -56,7 +57,7 @@ namespace RaindropAutomations
 
             videosAsBookmarks.RemoveMatchesFromDescendants(checkParentCollectionId, SelfInclusionOptions.IncludeSelf, UrlOptions.UrlAndFirstParamOnly);
 
-            raindropManager.CreateMultipleBookmarks(videosAsBookmarks);
+            raindropApiService.CreateMultipleBookmarks(videosAsBookmarks);
         }
 
         private static void SaveYoutubeVideosInRaindropCollection()
