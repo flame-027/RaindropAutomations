@@ -11,14 +11,14 @@ using System.Text.Json;
 
 namespace RaindropAutomations
 {
-    public class RaindropManager
+    public partial class RaindropService
     {
         private readonly string _apiToken;
         private readonly string _apiBaseUrl;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
 
-        public RaindropManager(IConfiguration config)
+        public RaindropService(IConfiguration config)
         {
             _config = config;
 
