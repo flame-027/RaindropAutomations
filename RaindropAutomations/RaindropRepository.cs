@@ -48,6 +48,43 @@ namespace RaindropAutomations
 
         }
 
+        private BookmarksQueryResponse GetBookmarksByPage(long collectionId, int maxPerPage, int pageIndex)
+        {
+            var requestUrl = $"{_apiBaseUrl}/raindrops/{collectionId}?perpage={maxPerPage}&page={pageIndex}";
+
+            while (true)
+            {
+                try
+                {
+                    var response = _httpClient.GetAsync(requestUrl).Result;
+
+                    if (response.StatusCode == (HttpStatusCode)429)
+                    {
+                        var retryAfter = response.Headers.Contains("Retry-After")
+                                                            ? int.Parse(response.Headers.GetValues("Retry-After").First())
+                                                            : 5;
+
+                        Console.WriteLine($"Rate limit hit. Retrying after {retryAfter} seconds...");
+
+                        Thread.Sleep(retryAfter * 1000);
+                        continue;
+                    }
+
+                    response.EnsureSuccessStatusCode();
+
+                    var pageResponseJson = response.Content.ReadAsStringAsync().Result;
+                    var pageResponseModel = JsonSerializer.Deserialize<BookmarksQueryResponse>(pageResponseJson);
+
+                    return pageResponseModel;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    throw;
+                }
+            }
+        }
+
 
         public void CreateSingleBookmark(BookmarkSaveModel bookmark)
         {
