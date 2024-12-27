@@ -13,21 +13,13 @@ namespace RaindropAutomations
 {
     public partial class RaindropService
     {
-        private readonly string _apiToken;
-        private readonly string _apiBaseUrl;
-        private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
 
         public RaindropService(IConfiguration config)
         {
             _config = config;
 
-            _apiToken = config.GetFromRaindropConfig("ApiToken").Value ?? string.Empty;
-            _apiBaseUrl = config.GetFromRaindropConfig("ApiBaseUrl").Value ?? string.Empty;
 
-            _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiToken);       
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public RaindropCollectionForest GetDescendantAndSelfCollectionsById(long parentCollectionId)
