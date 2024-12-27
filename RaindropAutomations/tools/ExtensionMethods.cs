@@ -1,14 +1,8 @@
-﻿using Google.Apis.YouTube.v3.Data;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using RaindropAutomations.Models.Fetching;
 using RaindropAutomations.Models.Saving;
 using RaindropAutomations.Options;
-using RainDropAutomations.Youtube.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using RaindropAutomations.Services;
 
 namespace RaindropAutomations.Tools
 {
@@ -56,22 +50,23 @@ namespace RaindropAutomations.Tools
         public static void RemoveMatchesFromDescendants(this List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? MatchOptions = null)
         {
             // FINDING MATCHES
-            var raindropManager = new RaindropService(GlobalConfig.Config);
+            var apiService = new RaindropApiWrapService(new RaindropRepository(GlobalConfig.Config));
+            var operationsService = new RaindropOperationsService(apiService);
 
             var allMatchingBookmarks = new List<BookmarkFetchModel>();
 
             if(includeParentSettings == SelfInclusionOptions.ExcludeSelf)
             {
-                var descendantCollections = raindropManager.GetDescendantCollectionsById(parentCollectionId);
-                var descendantBookmarks = raindropManager.GetAllBookmarksFromMultipleCollections(descendantCollections.AllIdsWithinForest);
+                var descendantCollections = operationsService.GetDescendantCollectionsById(parentCollectionId);
+                var descendantBookmarks = operationsService.GetAllBookmarksFromMultipleCollections(descendantCollections.AllIdsWithinForest);
 
                 allMatchingBookmarks = descendantBookmarks ?? [];
             }
 
             if(includeParentSettings == SelfInclusionOptions.IncludeSelf)
             {
-                var parentAndDescendantCollections = raindropManager.GetDescendantAndSelfCollectionsById(parentCollectionId);
-                var allBookmarksInParentAndDescendants = raindropManager.GetAllBookmarksFromMultipleCollections(parentAndDescendantCollections.AllIdsWithinForest);
+                var parentAndDescendantCollections = operationsService.GetDescendantAndSelfCollectionsById(parentCollectionId);
+                var allBookmarksInParentAndDescendants = operationsService.GetAllBookmarksFromMultipleCollections(parentAndDescendantCollections.AllIdsWithinForest);
 
                 allMatchingBookmarks = allBookmarksInParentAndDescendants ?? [];
             }
