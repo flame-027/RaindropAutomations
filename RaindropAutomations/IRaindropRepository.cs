@@ -12,6 +12,8 @@ namespace RaindropAutomations
     {
         SingleCollectionPayload GetRaindropCollectionById(long collectionId);
 
+        BookmarksQueryResponse GetCollectionBookmarksById(long collectionId, int maxPerPage, int pageIndex);
+
         MultiCollectionPayload GetEveryChildCollectionOnAccount();
 
         void CreateSingleBookmark(BookmarkSaveModel bookmark);
