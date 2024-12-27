@@ -49,6 +49,7 @@ namespace RaindropAutomations
 
         }
 
+
         public BookmarksQueryResponse GetCollectionBookmarksById(long collectionId, int maxPerPage, int pageIndex)
         {
             var requestUrl = $"{_apiBaseUrl}/raindrops/{collectionId}?perpage={maxPerPage}&page={pageIndex}";
@@ -145,5 +146,6 @@ namespace RaindropAutomations
 
             var response = _httpClient.PutAsync(requestUrl, content).Result;
         }
+
     }
 }
