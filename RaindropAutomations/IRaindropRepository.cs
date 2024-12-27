@@ -10,7 +10,7 @@ namespace RaindropAutomations
 {
     public interface IRaindropRepository
     {
-        SingleCollectionPayload GetRaindropCollectionById(long collectionId);
+        SingleCollectionPayload GetCollectionById(long collectionId);
 
         BookmarksQueryResponse GetCollectionBookmarksById(long collectionId, int maxPerPage, int pageIndex);
 
