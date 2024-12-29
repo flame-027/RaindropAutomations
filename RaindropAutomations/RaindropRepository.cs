@@ -90,7 +90,7 @@ namespace RaindropAutomations
 
         public void CreateSingleBookmark(BookmarkSaveModel bookmark)
         {
-            string bookmarkJson = Newtonsoft.Json.JsonConvert.SerializeObject(bookmark);
+            string bookmarkJson = JsonSerializer.Serialize(bookmark);
             HttpContent content = new StringContent(bookmarkJson, Encoding.UTF8, "application/json");
 
             var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrop", content).Result;
@@ -105,7 +105,7 @@ namespace RaindropAutomations
             {
                 var bookmarksPayload = new MultiBookmarkSavePayload { Result = true, Bookmarks = bookmarkChunk };
 
-                string bookmarkPayloadJson = Newtonsoft.Json.JsonConvert.SerializeObject(bookmarksPayload);
+                string bookmarkPayloadJson = JsonSerializer.Serialize(bookmarksPayload);
                 HttpContent content = new StringContent(bookmarkPayloadJson, Encoding.UTF8, "application/json");
 
                 var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrops", content).Result;
