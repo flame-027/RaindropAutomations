@@ -14,13 +14,13 @@ namespace RaindropAutomations.Models.Saving
         public object PleaseParse = new();
 
         [JsonProperty("tags")]
-        public List<string> Tags { get; set; }
+        public List<string> Tags { get; set; } = [];
 
         [JsonProperty("important")]
         public bool Important { get; set; }
 
         [JsonProperty("media")]
-        public List<Object> Media { get; set; }
+        public List<Object> Media { get; set; } = [];
     }
 
 }
