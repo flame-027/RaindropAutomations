@@ -14,19 +14,21 @@ namespace RaindropAutomations
         private readonly string _apiToken;
         private readonly string _apiBaseUrl;
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _config;
+        private readonly JsonSerializerSettings _collectionDeserializeSettings;
 
         public RaindropRepository(IConfiguration config, HttpClient httpClient)
         {
-            _config = config;
-
             _apiToken = config.GetFromRaindropConfig("ApiToken").Value ?? string.Empty;
             _apiBaseUrl = config.GetFromRaindropConfig("ApiBaseUrl").Value ?? string.Empty;
 
             _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiToken);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _config = config;
+
+            _collectionDeserializeSettings = new JsonSerializerSettings
+            {
+                MetadataPropertyHandling = MetadataPropertyHandling.Ignore
+            };
         }
 
 
@@ -38,7 +40,7 @@ namespace RaindropAutomations
 
             var jsonResult = response.Content.ReadAsStringAsync().Result;
 
-            var resultModel = JsonConvert.DeserializeObject<SingleCollectionPayload>(jsonResult);
+            var resultModel = JsonConvert.DeserializeObject<SingleCollectionPayload>(jsonResult, _collectionDeserializeSettings);
 
             return resultModel;
 
@@ -117,7 +119,9 @@ namespace RaindropAutomations
 
             var jsonResult = response.Content.ReadAsStringAsync().Result;
 
-            var resultModel = JsonConvert.DeserializeObject<MultiCollectionPayload>(jsonResult);
+           
+
+            var resultModel = JsonConvert.DeserializeObject<MultiCollectionPayload>(jsonResult, _collectionDeserializeSettings);
 
             if (resultModel != null)
                 resultModel.Items = resultModel.Items.Where(x => x.Parent != null).ToList();
