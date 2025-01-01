@@ -1,13 +1,13 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace RaindropAutomations.Models.Fetching
 {
     public class ParentCollectionModel
     {
-        [JsonPropertyName("$id")]
+        [JsonProperty("$id")]
         public long Id { get; set; }
 
-        [JsonPropertyName("$ref")]
+        [JsonProperty("$ref")]
         public string Ref { get; set; }
     }
 }

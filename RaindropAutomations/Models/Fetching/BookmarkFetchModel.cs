@@ -1,43 +1,43 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace RaindropAutomations.Models.Fetching
 {
     public class BookmarkFetchModel
     {
-        [JsonPropertyName("_id")]
+        [JsonProperty("_id")]
         public long Id { get; set; }
 
-        [JsonPropertyName("title")]
+        [JsonProperty("title")]
         public string Title { get; set; }
 
-        [JsonPropertyName("link")]
+        [JsonProperty("link")]
         public string Link { get; set; }
 
-        [JsonPropertyName("tags")]
+        [JsonProperty("tags")]
         public List<string> Tags { get; set; } = [];
 
-        [JsonPropertyName("created")]
+        [JsonProperty("created")]
         public DateTime CreatedOn { get; set; }
 
-        [JsonPropertyName("lastUpdate")]
+        [JsonProperty("lastUpdate")]
         public DateTime LastUpdateOn { get; set; }
 
-        [JsonPropertyName("type")]
+        [JsonProperty("type")]
         public string Type { get; set; }
 
-        [JsonPropertyName("excerpt")]
+        [JsonProperty("excerpt")]
         public string Excerpt { get; set; }
 
-        [JsonPropertyName("domain")]
+        [JsonProperty("domain")]
         public string Domain { get; set; }
 
-        [JsonPropertyName("note")]
+        [JsonProperty("note")]
         public string Note { get; set; }
 
-        [JsonPropertyName("cover")]
+        [JsonProperty("cover")]
         public string CoverUrl { get; set; }
 
-        [JsonPropertyName("media")]
+        [JsonProperty("media")]
         public List<Object> Media { get; set; }
     }
 }

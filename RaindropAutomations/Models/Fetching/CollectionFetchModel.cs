@@ -1,31 +1,31 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace RaindropAutomations.Models.Fetching
 {
     public class CollectionFetchModel
     {
-        [JsonPropertyName("_id")]
+        [JsonProperty("_id")]
         public long Id { get; set; }
 
-        [JsonPropertyName("title")]
+        [JsonProperty("title")]
         public string Title { get; set; }
 
-        [JsonPropertyName("parent")]
+        [JsonProperty("parent")]
         public ParentCollectionModel Parent { get; set; }
 
-        [JsonPropertyName("count")]
+        [JsonProperty("count")]
         public int Count { get; set; }
 
-        [JsonPropertyName("created")]
+        [JsonProperty("created")]
         public DateTime Created { get; set; }
 
-        [JsonPropertyName("lastUpdate")]
+        [JsonProperty("lastUpdate")]
         public DateTime LastUpdate { get; set; }
 
-        [JsonPropertyName("color")]
+        [JsonProperty("color")]
         public string Color { get; set; }
 
-        [JsonPropertyName("view")]
+        [JsonProperty("view")]
         public string View { get; set; }
     }
 }

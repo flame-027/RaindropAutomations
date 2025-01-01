@@ -1,26 +1,25 @@
 ﻿using Newtonsoft.Json;
-using System.Text.Json.Serialization;
 
 namespace RaindropAutomations.Models.Saving
 {
     public class BookmarkSaveModel
     {
-        [JsonPropertyName("link")]
+        [JsonProperty("link")]
         public string Link { get; set; }
 
-        [JsonPropertyName("collection")]
+        [JsonProperty("collection")]
         public CollectionIdSaveModel Collection { get; set; }
 
-        [JsonPropertyName("pleaseParse")]
+        [JsonProperty("pleaseParse")]
         public object PleaseParse = new();
 
-        [JsonPropertyName("tags")]
+        [JsonProperty("tags")]
         public List<string> Tags { get; set; }
 
-        [JsonPropertyName("important")]
+        [JsonProperty("important")]
         public bool Important { get; set; }
 
-        [JsonPropertyName("media")]
+        [JsonProperty("media")]
         public List<Object> Media { get; set; }
     }
 

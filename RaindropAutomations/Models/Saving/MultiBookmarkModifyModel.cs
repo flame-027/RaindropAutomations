@@ -1,36 +1,31 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace RaindropAutomations.Models.Saving
 {
     public class MultiBookmarkModifyModel
     {
-        [JsonPropertyName("ids")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonProperty("ids", NullValueHandling = NullValueHandling.Ignore)]
 
         public List<long> Ids { get; set; }
 
-        [JsonPropertyName("collection")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonProperty("collection", NullValueHandling = NullValueHandling.Ignore)]
 
         public CollectionIdSaveModel Collection { get; set; }
 
-        [JsonPropertyName("cover")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonProperty("cover", NullValueHandling = NullValueHandling.Ignore)]
 
         public string CoverUrl { get; set; }
 
-        [JsonPropertyName("tags")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
 
         public List<string> Tags { get; set; }  // DO NOT INTIALIZE AS EMPTY ARRAY WILL WIPE EXISTING DATA
 
-        [JsonPropertyName("important")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonProperty("important", NullValueHandling = NullValueHandling.Ignore)]
 
         public bool? Important { get; set; }
 
-        [JsonPropertyName("media")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonProperty("media", NullValueHandling = NullValueHandling.Ignore)]
 
         public List<Object> Media { get; set; }  // DO NOT INTIALIZE AS EMPTY ARRAY WILL WIPE EXISTING DATA
     }

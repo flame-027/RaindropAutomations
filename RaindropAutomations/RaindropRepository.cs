@@ -2,16 +2,10 @@
 using RaindropAutomations.Models.Fetching;
 using RaindropAutomations.Models.Saving;
 using RaindropAutomations.Tools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace RaindropAutomations
 {
@@ -44,7 +38,7 @@ namespace RaindropAutomations
 
             var jsonResult = response.Content.ReadAsStringAsync().Result;
 
-            var resultModel = JsonSerializer.Deserialize<SingleCollectionPayload>(jsonResult);
+            var resultModel = JsonConvert.DeserializeObject<SingleCollectionPayload>(jsonResult);
 
             return resultModel;
 
@@ -76,7 +70,7 @@ namespace RaindropAutomations
                     response.EnsureSuccessStatusCode();
 
                     var pageResponseJson = response.Content.ReadAsStringAsync().Result;
-                    var pageResponseModel = JsonSerializer.Deserialize<BookmarksQueryResponse>(pageResponseJson);
+                    var pageResponseModel = JsonConvert.DeserializeObject<BookmarksQueryResponse>(pageResponseJson);
 
                     return pageResponseModel;
                 }
@@ -91,7 +85,7 @@ namespace RaindropAutomations
 
         public void CreateSingleBookmark(BookmarkSaveModel bookmark)
         {
-            string bookmarkJson = JsonSerializer.Serialize(bookmark);
+            string bookmarkJson = JsonConvert.SerializeObject(bookmark);
             HttpContent content = new StringContent(bookmarkJson, Encoding.UTF8, "application/json");
 
             var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrop", content).Result;
@@ -106,7 +100,7 @@ namespace RaindropAutomations
             {
                 var bookmarksPayload = new MultiBookmarkSavePayload { Result = true, Bookmarks = bookmarkChunk };
 
-                string bookmarkPayloadJson = JsonSerializer.Serialize(bookmarksPayload);
+                string bookmarkPayloadJson = JsonConvert.SerializeObject(bookmarksPayload);
                 HttpContent content = new StringContent(bookmarkPayloadJson, Encoding.UTF8, "application/json");
 
                 var response = _httpClient.PostAsync($"{_apiBaseUrl}/raindrops", content).Result;
@@ -123,7 +117,7 @@ namespace RaindropAutomations
 
             var jsonResult = response.Content.ReadAsStringAsync().Result;
 
-            var resultModel = JsonSerializer.Deserialize<MultiCollectionPayload>(jsonResult);
+            var resultModel = JsonConvert.DeserializeObject<MultiCollectionPayload>(jsonResult);
 
             if (resultModel != null)
                 resultModel.Items = resultModel.Items.Where(x => x.Parent != null).ToList();
@@ -142,7 +136,7 @@ namespace RaindropAutomations
                 Ids = specifiedBookmarkIds
             };
 
-            string requestJson = JsonSerializer.Serialize(model);
+            string requestJson = JsonConvert.SerializeObject(model);
             HttpContent content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
             var response = _httpClient.PutAsync(requestUrl, content).Result;

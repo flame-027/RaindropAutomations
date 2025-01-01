@@ -1,15 +1,13 @@
-﻿using System;
-using System.Text.Json.Serialization;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 
 namespace RaindropAutomations.Models.Fetching
 {
     public class SingleCollectionPayload
     {
-        [JsonPropertyName("result")]
+        [JsonProperty("result")]
         public bool Result { get; set; }
 
-        [JsonPropertyName("item")]
+        [JsonProperty("item")]
         public CollectionFetchModel Item { get; set; }
     }
 }

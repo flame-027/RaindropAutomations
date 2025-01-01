@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace RaindropAutomations.Models.Fetching
 {
     public class BookmarksQueryResponse
     {
-        [JsonPropertyName("items")]
+        [JsonProperty("items")]
         public List<BookmarkFetchModel> Items { get; set; } = [];
 
-        [JsonPropertyName("result")]
+        [JsonProperty("result")]
         public bool Result { get; set; }
 
-        [JsonPropertyName("count")]
+        [JsonProperty("count")]
         public int Count { get; set; }
     }
 }
