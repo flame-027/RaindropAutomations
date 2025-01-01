@@ -4,6 +4,7 @@ using RaindropAutomations.Options;
 using RaindropAutomations.Services;
 using RaindropAutomations.Tools;
 using RainDropAutomations.Youtube.Models;
+using System.Reflection.Metadata.Ecma335;
 using YoutubeAutomation;
 
 namespace RaindropAutomations
@@ -33,13 +34,17 @@ namespace RaindropAutomations
                 var checkParentCollectionId = int.Parse(config.GetFromRaindropConfig("VidoesCheckRootId").Value);
 
                 var youtubeManager = new YoutubeManager(config, applicationName, credentialsPath, tokenPath);
-                var raindropApiService = new RaindropApiWrapService(new RaindropRepository(config));
+                var raindropApiService = new RaindropApiWrapService(new RaindropRepository(config, new()));
 
                 var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
 
                 YoutubePlaylistToRaindrop(youtubeManager, raindropApiService, playlistUrl, saveCollectionId, checkParentCollectionId);
+
+                //raindropApiService.UpdateMultipleBookmarks(50386169, 50386170, [918116881]);
             }
+
         }
+
 
         private static void YoutubePlaylistToRaindrop(YoutubeManager youtubeManager, RaindropApiWrapService raindropApiService, string playlistUrl, int saveCollectionId, int checkParentCollectionId)
         {
