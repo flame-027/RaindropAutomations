@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace RaindropAutomations
@@ -21,14 +22,14 @@ namespace RaindropAutomations
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
 
-        public RaindropRepository(IConfiguration config)
+        public RaindropRepository(IConfiguration config, HttpClient httpClient)
         {
             _config = config;
 
             _apiToken = config.GetFromRaindropConfig("ApiToken").Value ?? string.Empty;
             _apiBaseUrl = config.GetFromRaindropConfig("ApiBaseUrl").Value ?? string.Empty;
 
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiToken);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _config = config;
