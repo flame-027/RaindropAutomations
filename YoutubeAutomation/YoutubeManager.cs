@@ -1,42 +1,42 @@
-﻿namespace YoutubeAutomation
-{
-    using System.Collections.Generic;
-    using Google.Apis.Auth.OAuth2;
-    using Google.Apis.Util.Store;
-    using Google.Apis.YouTube.v3;
-    using Google.Apis.Services;
-    using Google.Apis.YouTube.v3.Data;
-    using YoutubeAutomation.Tools;
-    using System.IO;
-    using Microsoft.Playwright;
-    using RainDropAutomations.Youtube.Models;
-    using Microsoft.Extensions.Configuration;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.YouTube.v3;
+using YoutubeAutomation.Tools;
+using Microsoft.Extensions.Configuration;
+using RaindropAutomations.Core.Configurations;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using Google.Apis.YouTube.v3.Data;
+using Microsoft.Playwright;
+using RainDropAutomations.Youtube.Models;
 
+
+namespace YoutubeAutomation
+{
     public class YoutubeManager
     {
         private readonly UserCredential _userToken;
         private readonly string _applicationName;
         private readonly string _credentialsRetriveFilePath;
         private readonly string _tokenRetriveAndSaveFilePath;
-        private readonly IConfiguration _config;
         private readonly string _chromuimDataDirectory;
 
-
-        public YoutubeManager(IConfiguration iconfig, string applicationName, string credentialsRetriveFilePath, string tokenRetriveAndSaveFilePath)
+        public YoutubeManager(IConfiguration config)
         {
-            _config = iconfig;
-            _applicationName = applicationName;
-            _credentialsRetriveFilePath = credentialsRetriveFilePath;
-            _tokenRetriveAndSaveFilePath = tokenRetriveAndSaveFilePath;
+            var googleApiConfig = new GoogleApiConfig();
+            config.GetSection("GoogleApi").Bind(googleApiConfig);
 
-            _chromuimDataDirectory = _config.GetSection("Playwright")
-                                                .GetSection("Chromium")
-                                                .GetSection("DataDirectory").Value;
+            var playwrightConfig = new PlaywrightConfig();
+            config.GetSection("Playwright").Bind(playwrightConfig);
+
+            _applicationName = googleApiConfig.ApplicationName;
+            _credentialsRetriveFilePath = googleApiConfig.CredentialsPath;
+            _tokenRetriveAndSaveFilePath = googleApiConfig.TokenFilePath;
+            _chromuimDataDirectory = playwrightConfig.Chromium.DataDirectory;
 
             var scopeList = new List<string>()
-            {
-                YouTubeService.Scope.Youtube
-            };
+                {
+                    YouTubeService.Scope.Youtube
+                };
 
             _userToken = GetUserToken(scopeList);
             _userToken?.RefreshToken();
@@ -68,7 +68,7 @@
             else
             {
                 throw new InvalidOperationException("Did not get any playlists back from Youtube");
-            } 
+            }
 
             return playlistVideosModels;
         }
@@ -85,7 +85,7 @@
                 //IgnoreDefaultArgs = new[] { "--enable-automation" }
             }).Result;
 
-            var page = browser.Pages.FirstOrDefault() ??  browser.NewPageAsync().Result;
+            var page = browser.Pages.FirstOrDefault() ?? browser.NewPageAsync().Result;
 
             page.GotoAsync(playlistUrl);
 
@@ -122,7 +122,7 @@
 
             page.WaitForTimeoutAsync(3000);
 
-            var elements =  page.QuerySelectorAllAsync("#video-title").Result;
+            var elements = page.QuerySelectorAllAsync("#video-title").Result;
             var videoLinks = new List<UrlModel>();
 
             foreach (var element in elements)
@@ -151,9 +151,9 @@
 
             var allPlaylists = currentPlaylistPage?.Items?.ToList();
 
-            if(allPlaylists == null)
-                    return new List<Playlist>();
-          
+            if (allPlaylists == null)
+                return new List<Playlist>();
+
             while (currentPlaylistPage.NextPageToken != null)
             {
                 getPlaylistsRequest.PageToken = currentPlaylistPage.NextPageToken;
@@ -251,6 +251,7 @@
 
             return userToken;
         }
+
 
     }
 }
