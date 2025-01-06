@@ -45,53 +45,7 @@ namespace RaindropAutomations.Tools
             //return input.Split('&')[0].Trim();
             // easy to read but apparently has unnecessary overhead
         }
+        
 
-
-        public static void RemoveMatchesFromDescendants(this List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? MatchOptions = null)
-        {
-            // FINDING MATCHES
-            var apiService = new RaindropApiWrapService(new RaindropRepository(GlobalConfig.Config , new()));
-            var operationsService = new RaindropOperationsService(apiService);
-
-            var allMatchingBookmarks = new List<BookmarkFetchModel>();
-
-            if(includeParentSettings == SelfInclusionOptions.ExcludeSelf)
-            {
-                var descendantCollections = operationsService.GetDescendantCollectionsById(parentCollectionId);
-                var descendantBookmarks = operationsService.GetAllBookmarksFromMultipleCollections(descendantCollections.AllIdsWithinForest);
-
-                allMatchingBookmarks = descendantBookmarks ?? [];
-            }
-
-            if(includeParentSettings == SelfInclusionOptions.IncludeSelf)
-            {
-                var parentAndDescendantCollections = operationsService.GetDescendantAndSelfCollectionsById(parentCollectionId);
-                var allBookmarksInParentAndDescendants = operationsService.GetAllBookmarksFromMultipleCollections(parentAndDescendantCollections.AllIdsWithinForest);
-
-                allMatchingBookmarks = allBookmarksInParentAndDescendants ?? [];
-            }
-
-            // could stop repeated code here by having conditional however I currently like how easy this is to read
-            // with seperate concerns and specific variable names. May change down the line depending on hows this method evolves.
-
-            // REMOVING MATCHES
-            if (MatchOptions != null && MatchOptions is UrlOptions confirmedType)
-            {
-                var refinedMatchingUrls = allMatchingBookmarks.Select(x => x.Link
-                                                        .GetUrlType(confirmedType))
-                                                        .ToList();
-
-               inputList.RemoveAll(x => refinedMatchingUrls.Contains(x.Link
-                                                         .GetUrlType(confirmedType)));
-            }
-            else
-            {
-                var rawMatchingUrls = allMatchingBookmarks.Select(x => x.Link)
-                                                    .ToList();
-
-                inputList.RemoveAll(x => rawMatchingUrls.Contains(x.Link));
-            }
-            // the else statment could potentially be removed, if support for none was added to options enum 
-        }
     }
 }
