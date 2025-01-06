@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaindropAutomations.Youtube", "YoutubeAutomation\RaindropAutomations.Youtube.csproj", "{94956096-AC84-467D-8911-EC947706E92E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaindropAutomations", "RaindropAutomations\RaindropAutomations.csproj", "{0FD11D51-9283-44AA-9D4B-508B93444683}"
+	ProjectSection(ProjectDependencies) = postProject
+		{03880EC7-4112-4C2D-8327-D81B36F29AD6} = {03880EC7-4112-4C2D-8327-D81B36F29AD6}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaindropAutomations.Tests", "RaindropAutomations.Tests\RaindropAutomations.Tests.csproj", "{3664912D-DF73-4AC6-884E-E2A73EED3AE3}"
 EndProject

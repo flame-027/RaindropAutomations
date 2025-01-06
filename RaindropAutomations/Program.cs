@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RaindropAutomations.Core.Options;
 using RaindropAutomations.Models.Saving;
-using RaindropAutomations.Options;
 using RaindropAutomations.Services;
 using RaindropAutomations.Tools;
-using RainDropAutomations.Youtube.Models;
-using System.Reflection.Metadata.Ecma335;
 using YoutubeAutomation;
 
 namespace RaindropAutomations
@@ -33,7 +31,7 @@ namespace RaindropAutomations
                 var saveCollectionId = int.Parse(config.GetFromRaindropConfig("VideosSaveInboxId").Value);
                 var checkParentCollectionId = int.Parse(config.GetFromRaindropConfig("VidoesCheckRootId").Value);
 
-                var youtubeManager = new YoutubeManager(config, applicationName, credentialsPath, tokenPath);
+                var youtubeManager = new YoutubeManager(config);
                 var raindropApiService = new RaindropApiWrapService(new RaindropRepository(config, new()));
 
                 var playlistUrl = @"https://www.youtube.com/playlist?list=WL";

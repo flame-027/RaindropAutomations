@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RaindropAutomations.Core.Options;
 using RaindropAutomations.Models.Fetching;
 using RaindropAutomations.Models.Saving;
-using RaindropAutomations.Options;
 using RaindropAutomations.Services;
 
 namespace RaindropAutomations.Tools
