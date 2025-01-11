@@ -118,7 +118,8 @@ namespace RaindropAutomations.Services
             return allBookmarks;
         }
 
-        public List<BookmarkSaveModel> RemoveMatchesFromDescendants(List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? matchOptions = null)
+
+        public List<BookmarkSaveModel> RemoveMatchesFromDescendants(List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? compareSettings = null)
         {
             // FINDING MATCHES
             var allMatchingBookmarks = new List<BookmarkFetchModel>();
@@ -133,14 +134,15 @@ namespace RaindropAutomations.Services
                 return inputList;
 
             // GET BOOKMARK URLS AND REFINE IF NEED BE
-            var convertedBookmarkUrls = allMatchingBookmarks.Select(x => x.Link.GetUrlType(matchOptions));
+            var convertedBookmarkUrls = allMatchingBookmarks.Select(x => x.Link.GetUrlType(compareSettings));
 
             // REMOVING MATCHES
 
-            inputList.RemoveAll(x => convertedBookmarkUrls.Contains(x.Link.GetUrlType(matchOptions)));
+            inputList.RemoveAll(x => convertedBookmarkUrls.Contains(x.Link.GetUrlType(compareSettings)));
 
             return inputList;
         }
+
 
         private List<string> GetMatchingUrls(List<BookmarkFetchModel> bookmarks, UrlOptions? matchOptions)
         {
