@@ -22,12 +22,12 @@ namespace RaindropAutomations.Tools
             return sectionResult;
         }
 
-        public static string GetUrlType(this string input, UrlOptions? urlType)
+        public static string GetUrlType(this string input, UrlOptions urlType)
         {
             if (string.IsNullOrEmpty(input))
                 return string.Empty;
 
-            if(urlType == null)
+            if(urlType == UrlOptions.RawUrl)
                 return string.Empty;
 
             if (urlType == UrlOptions.PureUrl)

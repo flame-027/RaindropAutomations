@@ -8,7 +8,8 @@ namespace RaindropAutomations.Core.Options
 {
     public enum UrlOptions
     {
-        PureUrl,
-        UrlAndFirstParamOnly
+        RawUrl,
+        UrlAndFirstParamOnly,
+        PureUrl
     }
 }
