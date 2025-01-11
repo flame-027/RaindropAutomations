@@ -1,4 +1,5 @@
 ﻿using RaindropAutomations.Core.Options;
+using RaindropAutomations.Models;
 using RaindropAutomations.Models.Fetching;
 using RaindropAutomations.Models.Processing;
 using RaindropAutomations.Models.Saving;
@@ -20,7 +21,7 @@ namespace RaindropAutomations.Services
         {
             var descendantsForest = GetDescendantCollectionsById(parentCollectionId);
 
-            if (descendantsForest == null || descendantsForest.AllIdsWithinForest.Count <= 0)
+            if (descendantsForest == null || descendantsForest.AllIds.Count <= 0)
                 return new();
 
             var parentResponsePayload = _apiService.GetCollectionById(parentCollectionId);
@@ -29,7 +30,7 @@ namespace RaindropAutomations.Services
             var parentNode = new RaindropCollectionTreeNode { Id = parentModel.Id, Children = descendantsForest.TopLevelNodes, Name = parentModel.Title };
 
             descendantsForest.TopLevelNodes = [parentNode];
-            descendantsForest.AllIdsWithinForest.Insert(0, parentNode.Id);
+            descendantsForest.AllIds.Insert(0, parentNode.Id);
 
             return descendantsForest;
         }
@@ -42,7 +43,7 @@ namespace RaindropAutomations.Services
             var parentCollection = new RaindropCollectionTreeNode { Id = parentCollectionId };
             var payload = new RaindropCollectionForest();
 
-            try { MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIdsWithinForest); }
+            try { MatchChildrenAndSetToParentRecursively(allChildrenOnAccount, parentCollection, payload.AllIds); }
 
             catch (Exception) { throw; }
 
