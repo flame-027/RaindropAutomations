@@ -119,7 +119,7 @@ namespace RaindropAutomations.Services
         }
 
 
-        public List<BookmarkSaveModel> RemoveMatchesFromDescendants(List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? compareSettings = null)
+        public List<BookmarkSaveModel> RemoveExisitingBookmarksWithinScope(List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? compareSettings = null)
         {
             // FINDING MATCHES
             var allMatchingBookmarks = new List<BookmarkFetchModel>();
