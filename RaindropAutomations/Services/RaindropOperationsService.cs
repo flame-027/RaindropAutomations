@@ -119,14 +119,35 @@ namespace RaindropAutomations.Services
         }
 
 
-        public List<BookmarkSaveModel> RemoveExisitingBookmarksWithinScope(List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? compareSettings = null)
+        public List<BookmarkSaveModel> RemoveExisitingBookmarksWithinScope(List<BookmarkSaveModel> inputList, long scopeParentCollectionId, DescendantOptions descendantOptions, UrlOptions? compareSettings = null)
+        {
+           
+        }
+
+        /// <summary>
+        /// Removes bookmarks that already exisiting within a specified scope in raindrop, from input list, to avoid duplicates.
+        /// </summary>
+        /// <param name="scopeParentCollectionId">The ID of the root collection for the scope.</param>
+        /// <param name="descendantOptions">Defines whether to include descendants, self, or exclude self in the scope.</param>
+        /// <param name="compareSettings">Optional settings to customize URL comparison logic - the logic the determines duplicates.</param>
+        /// <param name="inputList">The list of bookmarks to filter by scope.</param>
+        /// 
+        public void RemoveExistingBookmarksWithinScope(long scopeParentCollectionId, 
+                                                            DescendantOptions? descendantOptions, 
+                                                            List<BookmarkSaveModel> inputList, 
+                                                            UrlOptions? compareSettings = null)
         {
             // FINDING MATCHES
             var allMatchingBookmarks = new List<BookmarkFetchModel>();
+            var collections = new object();
 
-            var collections = includeParentSettings == SelfInclusionOptions.IncludeSelf
-                                                          ? GetDescendantAndSelfCollectionsById(parentCollectionId)
-                                                          : GetDescendantCollectionsById(parentCollectionId);
+            if (descendantOptions == null)
+                collections = _apiService.GetCollectionById(scopeParentCollectionId);
+
+
+            //var collections = includeParentSettings == SelfInclusionOptions.IncludeSelf
+            //                                              ? GetDescendantAndSelfCollectionsById(scopeParentCollectionId)
+            //                                              : GetDescendantCollectionsById(scopeParentCollectionId);
 
             allMatchingBookmarks = GetAllBookmarksFromMultipleCollections(collections.AllIdsWithinForest) ?? [];
 
@@ -141,6 +162,11 @@ namespace RaindropAutomations.Services
             inputList.RemoveAll(x => convertedBookmarkUrls.Contains(x.Link.GetUrlType(compareSettings)));
 
             return inputList;
+        }
+
+        private GetAllCollectionsWithinScope(DescendantOptions )
+        {
+
         }
 
 
