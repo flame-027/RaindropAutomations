@@ -3,6 +3,7 @@ using RaindropAutomations.Models.Fetching;
 using RaindropAutomations.Models.Processing;
 using RaindropAutomations.Models.Saving;
 using RaindropAutomations.Tools;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RaindropAutomations.Services
 {
@@ -117,49 +118,37 @@ namespace RaindropAutomations.Services
             return allBookmarks;
         }
 
-        public void RemoveMatchesFromDescendants(List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? MatchOptions = null)
+        public List<BookmarkSaveModel> RemoveMatchesFromDescendants(List<BookmarkSaveModel> inputList, long parentCollectionId, SelfInclusionOptions includeParentSettings, UrlOptions? matchOptions = null)
         {
             // FINDING MATCHES
             var allMatchingBookmarks = new List<BookmarkFetchModel>();
 
-            if (includeParentSettings == SelfInclusionOptions.ExcludeSelf)
-            {
-                var descendantCollections = GetDescendantCollectionsById(parentCollectionId);
-                var descendantBookmarks = GetAllBookmarksFromMultipleCollections(descendantCollections.AllIdsWithinForest);
+            var collections = includeParentSettings == SelfInclusionOptions.IncludeSelf
+                                                          ? GetDescendantAndSelfCollectionsById(parentCollectionId)
+                                                          : GetDescendantCollectionsById(parentCollectionId);
 
-                allMatchingBookmarks = descendantBookmarks ?? [];
-            }
+            allMatchingBookmarks = GetAllBookmarksFromMultipleCollections(collections.AllIdsWithinForest) ?? [];
 
-            if (includeParentSettings == SelfInclusionOptions.IncludeSelf)
-            {
-                var parentAndDescendantCollections = GetDescendantAndSelfCollectionsById(parentCollectionId);
-                var allBookmarksInParentAndDescendants = GetAllBookmarksFromMultipleCollections(parentAndDescendantCollections.AllIdsWithinForest);
+            if (allMatchingBookmarks.Count < 1)
+                return inputList;
 
-                allMatchingBookmarks = allBookmarksInParentAndDescendants ?? [];
-            }
-
-            // could stop repeated code here by having conditional however I currently like how easy this is to read
-            // with seperate concerns and specific variable names. May change down the line depending on hows this method evolves.
+            // GET BOOKMARK URLS AND REFINE IF NEED BE
+            var convertedBookmarkUrls = allMatchingBookmarks.Select(x => x.Link.GetUrlType(matchOptions));
 
             // REMOVING MATCHES
-            if (MatchOptions != null && MatchOptions is UrlOptions confirmedType)
-            {
-                var refinedMatchingUrls = allMatchingBookmarks.Select(x => x.Link
-                                                        .GetUrlType(confirmedType))
-                                                        .ToList();
 
-                inputList.RemoveAll(x => refinedMatchingUrls.Contains(x.Link
-                                                          .GetUrlType(confirmedType)));
-            }
-            else
-            {
-                var rawMatchingUrls = allMatchingBookmarks.Select(x => x.Link)
-                                                    .ToList();
+            inputList.RemoveAll(x => convertedBookmarkUrls.Contains(x.Link.GetUrlType(matchOptions)));
 
-                inputList.RemoveAll(x => rawMatchingUrls.Contains(x.Link));
-            }
-            // the else statment could potentially be removed, if support for none was added to options enum 
+            return inputList;
         }
+
+        private List<string> GetMatchingUrls(List<BookmarkFetchModel> bookmarks, UrlOptions? matchOptions)
+        {
+            return matchOptions != null
+                ? bookmarks.Select(x => x.Link.GetUrlType(matchOptions.Value)).ToList()
+                : bookmarks.Select(x => x.Link).ToList();
+        }
+
 
     }
 }
