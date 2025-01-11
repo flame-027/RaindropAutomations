@@ -120,11 +120,6 @@ namespace RaindropAutomations.Services
         }
 
 
-        public List<BookmarkSaveModel> RemoveExisitingBookmarksWithinScope(List<BookmarkSaveModel> inputList, long scopeParentCollectionId, DescendantOptions descendantOptions, UrlOptions? compareSettings = null)
-        {
-           
-        }
-
         /// <summary>
         /// Removes bookmarks that already exisiting within a specified scope in raindrop, from input list, to avoid duplicates.
         /// </summary>
@@ -133,49 +128,53 @@ namespace RaindropAutomations.Services
         /// <param name="compareSettings">Optional settings to customize URL comparison logic - the logic the determines duplicates.</param>
         /// <param name="inputList">The list of bookmarks to filter by scope.</param>
         /// 
-        public void RemoveExistingBookmarksWithinScope(long scopeParentCollectionId, 
-                                                            DescendantOptions? descendantOptions, 
-                                                            List<BookmarkSaveModel> inputList, 
-                                                            UrlOptions? compareSettings = null)
+        public List<BookmarkSaveModel> RemoveExistingBookmarksWithinScope(List<BookmarkSaveModel> bookmarksToFilter,
+                                                            long scopeParentCollectionId,
+                                                            HierarchyScopeOptions optionalScopeSettings = HierarchyScopeOptions.SelfOnly,
+                                                            UrlOptions optionalCompareSettings = UrlOptions.RawUrl)
         {
             // FINDING MATCHES
-            var allMatchingBookmarks = new List<BookmarkFetchModel>();
-            var collections = new object();
+            var allscopedBookmarks = new List<BookmarkFetchModel>();
+            var collections = GetAllCollectionsWithinScope(scopeParentCollectionId, optionalScopeSettings);
 
-            if (descendantOptions == null)
-                collections = _apiService.GetCollectionById(scopeParentCollectionId);
+            allscopedBookmarks = GetAllBookmarksFromMultipleCollections(collections.AllIds);
 
-
-            //var collections = includeParentSettings == SelfInclusionOptions.IncludeSelf
-            //                                              ? GetDescendantAndSelfCollectionsById(scopeParentCollectionId)
-            //                                              : GetDescendantCollectionsById(scopeParentCollectionId);
-
-            allMatchingBookmarks = GetAllBookmarksFromMultipleCollections(collections.AllIdsWithinForest) ?? [];
-
-            if (allMatchingBookmarks.Count < 1)
-                return inputList;
+            if (allscopedBookmarks.Count < 1)
+                return bookmarksToFilter;
 
             // GET BOOKMARK URLS AND REFINE IF NEED BE
-            var convertedBookmarkUrls = allMatchingBookmarks.Select(x => x.Link.GetUrlType(compareSettings));
+            var scopedBookmarkUrls = allscopedBookmarks.Select(x => x.Link.GetUrlType(optionalCompareSettings)).ToList();
 
             // REMOVING MATCHES
-
-            inputList.RemoveAll(x => convertedBookmarkUrls.Contains(x.Link.GetUrlType(compareSettings)));
-
-            return inputList;
-        }
-
-        private GetAllCollectionsWithinScope(DescendantOptions )
-        {
+            return bookmarksToFilter
+                    .Where(x => !scopedBookmarkUrls.Contains(x.Link.GetUrlType(optionalCompareSettings)))
+                    .ToList();
 
         }
 
 
-        private List<string> GetMatchingUrls(List<BookmarkFetchModel> bookmarks, UrlOptions? matchOptions)
+        private ICollectionScope GetAllCollectionsWithinScope(long scopeParentCollectionId, 
+                                                                HierarchyScopeOptions optionalScopeSettings = HierarchyScopeOptions.SelfOnly)
         {
-            return matchOptions != null
-                ? bookmarks.Select(x => x.Link.GetUrlType(matchOptions.Value)).ToList()
-                : bookmarks.Select(x => x.Link).ToList();
+            switch (optionalScopeSettings)
+            {
+                case HierarchyScopeOptions.SelfOnly:
+                    var singleCollection = _apiService.GetCollectionById(scopeParentCollectionId);
+                    return singleCollection;
+
+                case HierarchyScopeOptions.DescendantsAndSelf:
+                    var descendantAndSelfCollections = GetDescendantAndSelfCollectionsById(scopeParentCollectionId);
+                    return descendantAndSelfCollections;
+
+                case HierarchyScopeOptions.DescendantsOnly:
+                    var descendantCollections = GetDescendantCollectionsById(scopeParentCollectionId);
+                    return descendantCollections;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(optionalScopeSettings),
+                        $"Unexpected HierarchyScopeOptions value: {optionalScopeSettings}");
+            }
+
         }
 
 

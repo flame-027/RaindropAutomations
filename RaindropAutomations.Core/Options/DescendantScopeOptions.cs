@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace RaindropAutomations.Core.Options
 {
-    public enum DescendantOptions
+    public enum HierarchyScopeOptions
     {
         DescendantsAndSelf,
-        DescendantsOnly
+        DescendantsOnly,
+        SelfOnly
     }
 }
