@@ -11,9 +11,10 @@ namespace RaindropAutomations
         private readonly YoutubeManager _youtubeManager;
         private readonly RaindropApiWrapService _raindropApiService;
 
-        public RaindropRoutinesManager(YoutubeManager youtubeManager)
+        public RaindropRoutinesManager(YoutubeManager youtubeManager, RaindropApiWrapService raindropApiWrapService)
         {
             _youtubeManager = youtubeManager;
+            _raindropApiService = raindropApiWrapService;
         }
 
         public void YoutubePlaylistToRaindrop(string playlistUrl, int saveCollectionId, int checkParentCollectionId)

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using RaindropAutomations.Models.Saving;
-using RaindropAutomations.Options;
 using RaindropAutomations.Services;
 using RaindropAutomations.Tools;
 using RainDropAutomations.Youtube.Models;
@@ -26,7 +25,7 @@ namespace RaindropAutomations
 
             var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
 
-            var routineManager = new RaindropRoutinesManager(new YoutubeManager(config));
+            var routineManager = new RaindropRoutinesManager(new YoutubeManager(config), new RaindropApiWrapService(new RaindropRepository(config, new HttpClient())));
 
             routineManager.YoutubePlaylistToRaindrop(playlistUrl, saveCollectionId, checkParentCollectionId);
 
