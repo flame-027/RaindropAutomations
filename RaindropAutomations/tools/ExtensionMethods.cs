@@ -28,7 +28,7 @@ namespace RaindropAutomations.Tools
                 return string.Empty;
 
             if(urlType == UrlOptions.RawUrl)
-                return string.Empty;
+                return input;
 
             if (urlType == UrlOptions.PureUrl)
             {
