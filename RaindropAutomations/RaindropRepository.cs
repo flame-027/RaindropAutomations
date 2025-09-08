@@ -96,7 +96,7 @@ namespace RaindropAutomations
 
         public void CreateMultipleBookmarks(List<BookmarkSaveModel> bookmarks)
         {
-            var BookmarkChuncks = bookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new();
+            var BookmarkChuncks = bookmarks.Chunk(100).Select(x => x.ToList())?.ToList() ?? new(); // THIS CHUNK AMOUNT NEEDS TO BE UN-HARDCODED
 
             foreach (var bookmarkChunk in BookmarkChuncks)
             {
