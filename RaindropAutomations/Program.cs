@@ -1,13 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RaindropAutomations.Models.Saving;
-using RaindropAutomations.Options;
 using RaindropAutomations.Services;
-using RaindropAutomations.Tools;
-using RainDropAutomations.Youtube.Models;
-using System.Reflection.Metadata.Ecma335;
-using YoutubeAutomation;
 
 namespace RaindropAutomations
 {
