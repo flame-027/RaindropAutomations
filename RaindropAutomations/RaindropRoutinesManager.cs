@@ -10,29 +10,29 @@ namespace RaindropAutomations
     {
         private readonly YoutubeManager _youtubeManager;
         private readonly RaindropApiWrapService _raindropApiService;
+        private readonly RaindropOperationsService _raindropOperationsService;
 
         public RaindropRoutinesManager(YoutubeManager youtubeManager)
         {
             _youtubeManager = youtubeManager;
         }
 
-        public void YoutubePlaylistToRaindrop(string playlistUrl, int saveCollectionId, int checkParentCollectionId)
+        public void YoutubePlaylistToRaindrop(string playlistUrl, int saveCollectionId, int CompareScopeCollectionId)
         {
-            // for ViaApi version of GetVideos method
-            // var youtubePlaylistName = "dump-wl";
-
-            var videoUrls = _youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistUrl).Select(x => x.UrlAndFirstPram);
+            var playlistVideoUrls = _youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistUrl).Select(x => x.UrlAndFirstPram);
 
             var targetCollection = new CollectionIdSaveModel { Id = saveCollectionId };
 
-            var videosAsBookmarks = videoUrls.Select
+            var playlistUrlsAsBookmarks = playlistVideoUrls.Select
                 (
                    x => new BookmarkSaveModel { Link = x, Collection = targetCollection, PleaseParse = new() }
                 ).ToList();
 
-            videosAsBookmarks.RemoveMatchesFromDescendants(checkParentCollectionId, SelfInclusionOptions.IncludeSelf, UrlOptions.UrlAndFirstParamOnly);
+            _raindropOperationsService.RemoveExistingBookmarksFromList(playlistUrlsAsBookmarks, CompareScopeCollectionId, HierarchyScopeOptions.DescendantsAndSelf, UrlOptions.UrlAndFirstParamOnly);
 
-            _raindropApiService.CreateMultipleBookmarks(videosAsBookmarks);
+            //playlistUrlsAsBookmarks.RemoveMatchesFromDescendants(CompareScopeCollectionId, SelfInclusionOptions.IncludeSelf, UrlOptions.UrlAndFirstParamOnly);
+
+            _raindropApiService.CreateMultipleBookmarks(playlistUrlsAsBookmarks);
         }
     }
 

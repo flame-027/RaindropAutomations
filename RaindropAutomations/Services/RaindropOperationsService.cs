@@ -121,42 +121,49 @@ namespace RaindropAutomations.Services
 
 
         /// <summary>
-        /// Removes bookmarks that already exisiting within a specified scope in raindrop, from input list, to avoid duplicates.
+        /// Removes bookmarks that already exisiting within raindrop from a specific colection and / or its descendents.
         /// </summary>
-        /// <param name="scopeParentCollectionId">The ID of the root collection for the scope.</param>
-        /// <param name="descendantOptions">Defines whether to include descendants, self, or exclude self in the scope.</param>
+        /// <param name="compareCollectionId">The ID of the root collection for the scope.</param>
+        /// <param name="compareScopeSettings">Defines whether to the scope is self, descendents or descendents and self.</param>
         /// <param name="compareSettings">Optional settings to customize URL comparison logic - the logic the determines duplicates.</param>
         /// <param name="inputList">The list of bookmarks to filter by scope.</param>
         /// 
-        public List<BookmarkSaveModel> RemoveExistingBookmarksWithinScope(List<BookmarkSaveModel> bookmarksToFilter,
-                                                            long scopeParentCollectionId,
-                                                            HierarchyScopeOptions optionalScopeSettings = HierarchyScopeOptions.SelfOnly,
-                                                            UrlOptions optionalCompareSettings = UrlOptions.RawUrl)
+        /// THIS SUMMARY NEEDS UPDATING 
+        /// THIS SUMMARY NEEDS UPDATING 
+        /// THIS SUMMARY NEEDS UPDATING 
+        ///
+        public List<BookmarkSaveModel> RemoveExistingBookmarksFromList(List<BookmarkSaveModel> bookmarksToFilter,
+                                                                         long compareCollectionId,
+                                                                         HierarchyScopeOptions compareScopeSettings = HierarchyScopeOptions.SelfOnly,
+                                                                         UrlOptions compareSettings = UrlOptions.RawUrl)
         {
-            // FINDING MATCHES
-            var allscopedBookmarks = new List<BookmarkFetchModel>();
-            var collections = GetAllCollectionsWithinScope(scopeParentCollectionId, optionalScopeSettings);
+            // GET ALL BOOKMARKS WITHIN COMPARE SCOPE
 
-            allscopedBookmarks = GetAllBookmarksFromMultipleCollections(collections.AllIds);
+            var collections = GetAllCollectionsWithinScope(compareCollectionId, compareScopeSettings);
+
+            var allscopedBookmarks = GetAllBookmarksFromMultipleCollections(collections.AllIds);
 
             if (allscopedBookmarks.Count < 1)
                 return bookmarksToFilter;
 
-            // GET BOOKMARK URLS AND REFINE IF NEED BE
-            var scopedBookmarkUrls = allscopedBookmarks.Select(x => x.Link.GetUrlType(optionalCompareSettings)).ToList();
+            // CONVERT URL'S TO REFINED TYPES FOR COMPARE OR LEAVE RAW
 
-            // REMOVING MATCHES
-            return bookmarksToFilter
-                    .Where(x => !scopedBookmarkUrls.Contains(x.Link.GetUrlType(optionalCompareSettings)))
+            var scopedBookmarkUrls = allscopedBookmarks.Select(x => x.Link.GetUrlType(compareSettings)).ToList();
+
+            // REMOVING ANY MATCHING BOOKMARKS FROM INPUT LIST & RETURN
+
+            var result = bookmarksToFilter
+                    .Where(x => !scopedBookmarkUrls.Contains(x.Link.GetUrlType(compareSettings)))
                     .ToList();
 
+            return result;
         }
 
 
         private ICollectionScope GetAllCollectionsWithinScope(long scopeParentCollectionId, 
-                                                                HierarchyScopeOptions optionalScopeSettings = HierarchyScopeOptions.SelfOnly)
+                                                                HierarchyScopeOptions compareScopeSettings)
         {
-            switch (optionalScopeSettings)
+            switch (compareScopeSettings)
             {
                 case HierarchyScopeOptions.SelfOnly:
                     var singleCollection = _apiService.GetCollectionById(scopeParentCollectionId);
@@ -171,8 +178,8 @@ namespace RaindropAutomations.Services
                     return descendantCollections;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(optionalScopeSettings),
-                        $"Unexpected HierarchyScopeOptions value: {optionalScopeSettings}");
+                    throw new ArgumentOutOfRangeException(nameof(compareScopeSettings),
+                        $"Unexpected HierarchyScopeOptions value: {compareScopeSettings}");
             }
 
         }
