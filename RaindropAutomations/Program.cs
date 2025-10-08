@@ -1,12 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RaindropAutomations.Models.Saving;
-using RaindropAutomations.Options;
+//using RaindropAutomations.Options;
 using RaindropAutomations.Services;
-using RaindropAutomations.Tools;
-using RainDropAutomations.Youtube.Models;
-using System.Reflection.Metadata.Ecma335;
 using YoutubeAutomation;
 
 namespace RaindropAutomations
@@ -24,18 +20,25 @@ namespace RaindropAutomations
                })
               .ConfigureServices(services =>
               {
+                  //services.AddHttpClient();
+                  //services.AddHttpClient<RaindropRepository>();
+                  
+                  services.AddSingleton<IRaindropRepository, RaindropRepository>(); 
                   services.AddSingleton<RaindropApiWrapService>();
                   services.AddSingleton<RaindropOperationsService>();
                   services.AddSingleton<RaindropRoutinesManager>();
+                  services.AddSingleton<YoutubeManager>();
+                  
                   //services.AddSingleton<IMyService, MyService>();
                   //services.AddTransient<IMyLogic, MyLogic>();
               }).Build();
 
 
             var config = host.Services.GetRequiredService<IConfiguration>();
+            GlobalConfig.Config = config;
 
-            var saveCollectionId = int.Parse(config["RaindropConfig:VideosSaveInboxId"]);
-            var checkParentCollectionId = int.Parse(config["RaindropConfig:VidoesCheckRootId"]);
+            var saveCollectionId = int.Parse(config["Raindrop:VideosSaveInboxId"]);
+            var checkParentCollectionId = int.Parse(config["Raindrop:VideosCheckRootId"]);
 
             var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
 
