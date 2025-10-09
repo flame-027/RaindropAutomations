@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-//using RaindropAutomations.Options;
 using RaindropAutomations.Services;
+using RaindropAutomations.Tools;
 using YoutubeAutomation;
 
 namespace RaindropAutomations
@@ -20,10 +20,17 @@ namespace RaindropAutomations
                })
               .ConfigureServices(services =>
               {
-                  //services.AddHttpClient();
-                  //services.AddHttpClient<RaindropRepository>();
+                  services.AddHttpClient<IRaindropRepository, RaindropRepository>((provider, client) =>
+                  {
+                      var config = provider.GetRequiredService<IConfiguration>();
+                      var apiToken = config.GetFromRaindropConfig("ApiToken").Value ?? string.Empty;
+                      var apiBaseUrl = config.GetFromRaindropConfig("ApiBaseUrl").Value ?? string.Empty;
+
+                      client.BaseAddress = new Uri(apiBaseUrl);
+                      client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiToken);
+                      client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                  });
                   
-                  services.AddSingleton<IRaindropRepository, RaindropRepository>(); 
                   services.AddSingleton<RaindropApiWrapService>();
                   services.AddSingleton<RaindropOperationsService>();
                   services.AddSingleton<RaindropRoutinesManager>();
@@ -31,16 +38,16 @@ namespace RaindropAutomations
                   
                   //services.AddSingleton<IMyService, MyService>();
                   //services.AddTransient<IMyLogic, MyLogic>();
+                  
               }).Build();
-
-
+            
             var config = host.Services.GetRequiredService<IConfiguration>();
             GlobalConfig.Config = config;
 
             var saveCollectionId = int.Parse(config["Raindrop:VideosSaveInboxId"]);
             var checkParentCollectionId = int.Parse(config["Raindrop:VideosCheckRootId"]);
 
-            var playlistUrl = @"https://www.youtube.com/playlist?list=WL";
+            var playlistUrl = @"https://www.youtube.com/playlist?list=PLRqwX-V7Uu6Zu_uqEA6NqhLzKLACwU74X";
 
             var routineManager = host.Services.GetRequiredService<RaindropRoutinesManager>();
 
