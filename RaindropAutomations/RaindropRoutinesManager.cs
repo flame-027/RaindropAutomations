@@ -28,7 +28,7 @@ namespace RaindropAutomations
                    x => new BookmarkSaveModel { Link = x, Collection = targetCollection, PleaseParse = new() }
                 ).ToList();
 
-            _raindropOperationsService.RemoveExistingBookmarksFromList(playlistUrlsAsBookmarks, CompareScopeCollectionId, HierarchyScopeOptions.DescendantsAndSelf, UrlOptions.UrlAndFirstParamOnly);
+            playlistUrlsAsBookmarks = _raindropOperationsService.RemoveExistingBookmarksFromList(playlistUrlsAsBookmarks, CompareScopeCollectionId, HierarchyScopeOptions.DescendantsAndSelf, UrlOptions.UrlAndFirstParamOnly);
             
             _raindropApiService.CreateMultipleBookmarks(playlistUrlsAsBookmarks);
         }
