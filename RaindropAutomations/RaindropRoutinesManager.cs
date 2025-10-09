@@ -29,9 +29,7 @@ namespace RaindropAutomations
                 ).ToList();
 
             _raindropOperationsService.RemoveExistingBookmarksFromList(playlistUrlsAsBookmarks, CompareScopeCollectionId, HierarchyScopeOptions.DescendantsAndSelf, UrlOptions.UrlAndFirstParamOnly);
-
-            //playlistUrlsAsBookmarks.RemoveMatchesFromDescendants(CompareScopeCollectionId, SelfInclusionOptions.IncludeSelf, UrlOptions.UrlAndFirstParamOnly);
-
+            
             _raindropApiService.CreateMultipleBookmarks(playlistUrlsAsBookmarks);
         }
     }
