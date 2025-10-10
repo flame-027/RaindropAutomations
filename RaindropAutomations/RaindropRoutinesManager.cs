@@ -19,18 +19,20 @@ namespace RaindropAutomations
 
         public void YoutubePlaylistToRaindrop(string playlistUrl, int saveCollectionId, int CompareScopeCollectionId)
         {
-            var playlistVideoUrls = _youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistUrl).Select(x => x.UrlAndFirstPram);
+            var videoUrls = _youtubeManager.GetVideoUrlsFromPlaylistViaScrapping(playlistUrl).Select(x => x.UrlAndFirstPram);
 
             var targetCollection = new CollectionIdSaveModel { Id = saveCollectionId };
 
-            var playlistUrlsAsBookmarks = playlistVideoUrls.Select
+            var urlsAsBookmarkModels = videoUrls.Select
                 (
                    x => new BookmarkSaveModel { Link = x, Collection = targetCollection, PleaseParse = new() }
                 ).ToList();
 
-            playlistUrlsAsBookmarks = _raindropOperationsService.RemoveExistingBookmarksFromList(playlistUrlsAsBookmarks, CompareScopeCollectionId, HierarchyScopeOptions.DescendantsAndSelf, UrlOptions.UrlAndFirstParamOnly);
+            var filteredBookmarkModels = _raindropOperationsService.
+                                        RemoveExistingBookmarksFromList
+                                            (urlsAsBookmarkModels, CompareScopeCollectionId, HierarchyScopeOptions.DescendantsAndSelf, UrlOptions.UrlAndFirstParamOnly);
             
-            _raindropApiService.CreateMultipleBookmarks(playlistUrlsAsBookmarks);
+            _raindropApiService.CreateMultipleBookmarks(filteredBookmarkModels);
         }
     }
 
